@@ -17,11 +17,13 @@ public class Tank extends Sprite implements KeyListener{
 	private int animationState;
 	private int life;
 	private int damage;
+	private int range;
 	private Color color;
 	public JLabel lives = new JLabel();
 	
 	public Tank(int player){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
+		this.range = 15;
 		this.player = player;
 		this.setCollision(true);
 		this.life = 3;
@@ -45,8 +47,6 @@ public class Tank extends Sprite implements KeyListener{
 						flag = true;
 					}
 				}
-
-
 				if(!flag){
 					this.move();
 				}

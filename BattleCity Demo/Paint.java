@@ -193,14 +193,7 @@ public class Paint extends JPanel implements Runnable{
 	    		}
 	    	}
     		else if(!(sp.get(i).getType()==Sprite.VINE)){
-   					Random rand = new Random();
-   					int num = rand.nextInt(3);
-   					
-   					if (num==0){
-   	    				map.replaceBlock(sp.get(i));
-	    			}else{
 		    			map.removeBlock(sp.get(i));
-		    		}
 	    	}
     	}
 	}
