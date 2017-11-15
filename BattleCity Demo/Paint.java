@@ -32,10 +32,11 @@ public class Paint extends JPanel implements Runnable{
 	static int[][] mp = map.getMap();
 	static ArrayList<Block> blocks = map.getBlocks();
 	
-	String server = "localhost";
-	boolean connected=false;
-    //DatagramSocket socket = new DatagramSocket();
-	String serverData;
+	static String server = "localhost";
+	static boolean connected=false;
+    static DatagramSocket socket;
+	static String serverData;
+	static String name;
 
 	Image water1 = null;
 	Image water2 = null;
@@ -198,7 +199,15 @@ public class Paint extends JPanel implements Runnable{
     	}
 	}
 
-
+	public static void send(String msg){
+		try{
+			byte[] buf = msg.getBytes();
+        	InetAddress address = InetAddress.getByName(server);
+        	DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 3000);
+        	socket.send(packet);
+        }catch(Exception e){}
+		
+	}
 
 
 
@@ -213,9 +222,17 @@ public class Paint extends JPanel implements Runnable{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.add(p);
 		
-		Paint.playerCount = Integer.parseInt(args[0]);
+
+		try{
+	    	Paint.socket = new DatagramSocket();
+		}catch(Exception e){};
+
+		Paint.server = args[0];
+		Paint.name = args[1];
+
+		Paint.playerCount = Integer.parseInt(args[2]);
 		for (int i =0;i<Paint.playerCount;i++){
-			Paint.tanks.add(new Tank(i));
+			Paint.tanks.add(new Tank(i,"player"+i));
 			Paint.tankThreads.add(new Thread(Paint.tanks.get(i)));
 			frame.addKeyListener((KeyListener)Paint.tanks.get(i));
 			Paint.tankThreads.get(i).start();
@@ -229,8 +246,25 @@ public class Paint extends JPanel implements Runnable{
 		//audiThread.start();
 		tank1Thread.start();
 		tank2Thread.start();*/
+		Paint.send("CONNECT "+Paint.name);
+		frame.addKeyListener((KeyListener) new KeyHandler());
 		board.start();
 		frame.setVisible(true);
 	}
 
 } 
+
+class MouseMotionHandler extends MouseMotionAdapter{
+	public void mouseMoved(MouseEvent mouse){
+		Paint.send("PLAYER "+Paint.name+" MOUSE "+ mouse);
+	}
+}
+
+class KeyHandler extends KeyAdapter{
+	public void keyPressed(KeyEvent key){
+		Paint.send("PLAYER "+Paint.name+" PRESSED "+ key);	
+	}
+	public void keyReleased(KeyEvent key){
+		Paint.send("PLAYER "+Paint.name+" RELEASED "+ key);
+	}
+}
