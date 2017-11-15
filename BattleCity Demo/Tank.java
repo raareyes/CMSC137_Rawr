@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import javax.sound.sampled.*;
 import java.util.Random;
 
-public class Tank extends Sprite implements KeyListener{
+public class Tank extends Sprite{ // implements KeyListener{
 	public static final int HEIGHT=15, WIDTH=15;
 	private ArrayList<Missile> mL = new ArrayList<Missile>();
 	private Character direction;
@@ -17,15 +17,19 @@ public class Tank extends Sprite implements KeyListener{
 	private int animationState;
 	private int life;
 	private int damage;
+	private int range;
+	private String name;
 	private Color color;
 	public JLabel lives = new JLabel();
 	
-	public Tank(int player){
+	public Tank(int player,String name){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
+		this.range = 15;
 		this.player = player;
 		this.setCollision(true);
 		this.life = 3;
 		this.spawn();
+		this.name = name;
 		Random rand = new Random();
 		this.color = new Color(rand.nextFloat(),rand.nextFloat(),rand.nextFloat());
 		this.lastKey = KeyEvent.VK_DOWN;
@@ -45,8 +49,6 @@ public class Tank extends Sprite implements KeyListener{
 						flag = true;
 					}
 				}
-
-
 				if(!flag){
 					this.move();
 				}
@@ -141,7 +143,6 @@ public class Tank extends Sprite implements KeyListener{
 			this.setDirection(0,this.getDY());
 		}
 
-    	
 			super.move();
 			
     	
@@ -174,10 +175,11 @@ public class Tank extends Sprite implements KeyListener{
 		mL.remove(m);
 	}
 
-	public void keyPressed(KeyEvent e) {
+	public void keyPressed(KeyEvent e, int player) {
 				//System.out.println(this.getXPos());
 				int key = e.getKeyCode();
-
+				if (this.player != player)
+					return;
 			        if ((key == KeyEvent.VK_LEFT) || (key == KeyEvent.VK_A)) {
 		            this.setDirection(-1,0);
    		            this.lastKey = e.getKeyCode();
@@ -254,10 +256,13 @@ public class Tank extends Sprite implements KeyListener{
 	}
 
 
-	public void keyReleased(KeyEvent e) {
+	public void keyReleased(KeyEvent e, int player) {
 	        
 		        int key = e.getKeyCode();
 
+				if (this.player != player)
+					return;
+				
 		        if (((key == KeyEvent.VK_E)
 	        		|| (key == KeyEvent.VK_SPACE))
 	        		&& this.isReloaded()) {
