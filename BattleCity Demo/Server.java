@@ -22,13 +22,14 @@ public class Server implements Runnable{
 	boolean gameON =false;
 	String playerData;
 	int playerCount=0;
+	String host;
     DatagramSocket serverSocket = null;
     Paint game;
 	//int gameStage=WAITING_FOR_PLAYERS;
 	int numPlayers;
 	ArrayList<Player> players = new ArrayList<Player>();
 	Thread t = new Thread(this);
-	public Server(){
+	public Server(String name,int numPlayers){
 		try {
             serverSocket = new DatagramSocket(3000);
 			serverSocket.setSoTimeout(100);
@@ -38,11 +39,12 @@ public class Server implements Runnable{
 		}catch(Exception e){}
 		//Create the game state
 	//	game = new GameState();
-		
-		System.out.println("Game created...");
-		
+		this.host = name;
+		this.numPlayers = numPlayers;
 		//Start the game thread
 		t.start();
+		System.out.println("Game created...");
+		
 	}
 	
 	/**
@@ -73,7 +75,10 @@ public class Server implements Runnable{
 	}
 
 	private void initGame(){
-		broadcast("GENERATING "+playerCount);
+		for(Player player : players){		
+			send(player,("GENERATING "+playerCount+" "+player.getTank()));	
+		}
+		
 		game = new Paint(playerCount, players);
 		for(Tank tank : game.getTanks()){
 			// NEW PLAYER NAME TANKID X Y
@@ -109,6 +114,7 @@ public class Server implements Runnable{
 				System.out.println("Player connected: "+tokens[1]);
 				broadcast("CONNECTED "+tokens[1]);
 				playerCount++;
+				System.out.println("Player Count: "+playerCount+"/"+numPlayers);
 			}
 			//System.out.println("Player Data: "+playerData);
 
@@ -176,8 +182,8 @@ public class Server implements Runnable{
 			System.exit(1);
 		}*/
 		
-		Server s = new Server();
-		s.numPlayers = Integer.parseInt(args[0]);
+		Server s = new Server(args[0],Integer.parseInt(args[1]));
+		//new Paint("localhost",args[0],4000);
 	}
 }
 

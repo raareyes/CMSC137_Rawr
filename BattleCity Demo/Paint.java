@@ -37,6 +37,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
     private DatagramSocket socket;
 	private String serverData;
 	private String name;
+	private int id;
 	private int port;
 	private BufferedImage offscreen;
 
@@ -66,11 +67,6 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		
 		//remove excess bytes
 		data = data.trim();
-
-		/*if (data.startsWith("CONNECT")){
-			playerCount ++;
-		}*/
-		//System.out.println("Player Data: "+data);
 
 		if (!data.equals("")){
 			System.out.println("Data: "+data);
@@ -169,6 +165,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 				//System.out.println(data.split(" ")[1]);
 				Paint.playerCount = (Integer)Integer.parseInt(data.split(" ")[1]);
 				System.out.println(Paint.playerCount);
+				this.id = (Integer)Integer.parseInt(data.split(" ")[2]);
 				continue;
 			}
 			// NEW PLAYER NAME TANKID X Y
@@ -202,38 +199,35 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 	public void run(){
 		
 		System.out.println("BOARD IS RUNNING");
-		try{
-			while(true){
+		while(true){
+			try{
+				Thread.sleep(1);
+			}catch(Exception e){
+				System.out.println(e.getMessage());
+			}
 				
 			String data = receiveData();
 			if (!data.equals("")){
 				String[] dataStream = data.split(" ");
 				for(Tank tank: Paint.tanks){
-					if (!tank.getName().equals(dataStream[1]))
+					if (!(tank.getPlayer() == (Integer.parseInt(dataStream[1]))))
 						continue;
 					else
 						System.out.println("IT RECIEVED!!");
 					if (dataStream[2].equals("PRESSED")){
-						tank.keyPressed(Integer.parseInt(dataStream[3]),dataStream[1]);
+						tank.keyPressed(Integer.parseInt(dataStream[3]),Integer.parseInt(dataStream[1]));
 						System.out.println("IT PRESSED!!");
 					}
 					if (dataStream[2].equals("RELEASED")){
 						System.out.println("IT RELEASED!!");
-						tank.keyReleased(Integer.parseInt(dataStream[3]),dataStream[1]);
+						tank.keyReleased(Integer.parseInt(dataStream[3]),Integer.parseInt(dataStream[1]));
 					}
 	
 				}
 			}
-
-			// offscreen.getGraphics().clearRect(0,0,600,600);
-			// setDrawing(offscreen.getGraphics());
-			Thread.sleep(1);
 			this.timer = this.timer != 100? this.timer+1: 1;
-			frame.repaint();
+			this.repaint();
 
-			}
-		}catch(Exception e){
-			System.out.println(e.getMessage());
 		}
 	}
 
@@ -285,8 +279,8 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 
 	public static void main(String[] args){
 		
-		Thread game = new Thread(new Paint(args[0],args[1],Integer.parseInt(args[2])));
-		//game.start();
+		new Paint(args[0],args[1],Integer.parseInt(args[2]));
+		
 	}
 
 	public Paint(String server, String name,int port) {
@@ -299,7 +293,6 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(this);
 		frame.getContentPane().add(this);
-		offscreen=(BufferedImage)this.createImage(600,600);
 
 		this.server = server;
 		this.name = name;
@@ -329,10 +322,10 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 			return tanks;
 		}
 	public void keyPressed(KeyEvent key){
-		this.send("PLAYER "+this.name+" PRESSED "+ key.getKeyCode());	
+		this.send("PLAYER "+this.id+" PRESSED "+ key.getKeyCode());	
 	}
 	public void keyReleased(KeyEvent key){
-		this.send("PLAYER "+this.name+" RELEASED "+ key.getKeyCode());
+		this.send("PLAYER "+this.id+" RELEASED "+ key.getKeyCode());
 	}
 	public void keyTyped(KeyEvent key){
 	}

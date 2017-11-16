@@ -193,9 +193,9 @@ public class Tank extends Sprite{ // implements KeyListener{
 		mL.remove(m);
 	}
 
-	public void keyPressed(int key, String player) {
+	public void keyPressed(int key, int player) {
 				//System.out.println(this.getXPos());
-				if (!this.name.equals(player))
+				if (!(this.player == (player)))
 					return;
 				if (((key == KeyEvent.VK_E)
 	        		|| (key == KeyEvent.VK_SPACE))
@@ -279,9 +279,9 @@ public class Tank extends Sprite{ // implements KeyListener{
 	}
 
 
-	public void keyReleased(int key, String player) {
+	public void keyReleased(int key, int player) {
 				/*
-				if (!this.name.equals(player))
+				if (!this.player == (player))
 					return;
 				
 		        if (((key == KeyEvent.VK_E)
