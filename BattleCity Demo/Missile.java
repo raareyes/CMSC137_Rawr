@@ -59,7 +59,7 @@ public class Missile extends Sprite{
 					if (opponent.getPlayer() == this.player)
 						continue;
 					this.getSprite().sleep(this.getSpeed());
-					Paint.p.updateBlock(this);
+					Paint.updateBlock(this);
 					ArrayList missileList = opponent.getMissiles();
 
 					

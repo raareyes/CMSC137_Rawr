@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Random;
@@ -9,15 +10,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class Paint extends JPanel implements Runnable{
+public class Paint extends JPanel implements Runnable, KeyListener{
 	/*static int x=50,y=50,dx = 0,dy = 0,lastKey;
 	*/
 	//Timer tm = new Timer(1, this);
-	static Paint p = new Paint();
-	static Thread board = new Thread (p);
+	private Thread board;
 
 	static DrawMap map = new DrawMap();
-	static JFrame frame;
+	private JFrame frame;
 
 	static ArrayList<Tank> tanks = new ArrayList<Tank>();
 	static ArrayList<Thread> tankThreads = new ArrayList<Thread>();
@@ -32,20 +32,53 @@ public class Paint extends JPanel implements Runnable{
 	static int[][] mp = map.getMap();
 	static ArrayList<Block> blocks = map.getBlocks();
 	
-	static String server = "localhost";
-	static boolean connected=false;
-    static DatagramSocket socket;
-	static String serverData;
-	static String name;
+	private String server = "localhost";
+	private boolean connected=false;
+    private DatagramSocket socket;
+	private String serverData;
+	private String name;
+	private int port;
+	private BufferedImage offscreen;
 
-	Image water1 = null;
-	Image water2 = null;
+	private Image water1 = new ImageIcon("Block/water2.png").getImage();
+	private Image water2 = new ImageIcon("Block/water3.png").getImage();
 	int timer = 1;
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
-		this.water1 = new ImageIcon("Block/water2.png").getImage();
-		this.water2 = new ImageIcon("Block/water3.png").getImage();
+		//g.drawImage(offscreen, 0, 0, null);
+		setDrawing(g);
 		
+		
+	}
+
+	public String receiveData(){
+		String data;
+		byte[] buf = new byte[256];
+		DatagramPacket packet = new DatagramPacket(buf, buf.length);
+		try{
+ 			socket.receive(packet);
+		}catch(Exception ioe){}
+		
+		/**
+		 * Convert the array of bytes to string
+		 */
+		data=new String(buf);
+		
+		//remove excess bytes
+		data = data.trim();
+
+		/*if (data.startsWith("CONNECT")){
+			playerCount ++;
+		}*/
+		//System.out.println("Player Data: "+data);
+
+		if (!data.equals("")){
+			System.out.println("Data: "+data);
+		}
+		return data;
+	}
+
+	private void setDrawing(Graphics g){
 		int x, y;
 		int h = Map.BOARD_HEIGHT/Map.BLOCK_HEIGHT, w = Map.BOARD_WIDTH/Map.BLOCK_WIDTH;
 		for(int j=0;j<mp.length;j++){
@@ -60,7 +93,7 @@ public class Paint extends JPanel implements Runnable{
 								g.drawImage(new ImageIcon("Block/brick2.png").getImage(),x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 								break;
 						case Sprite.WATER:
-								g.drawImage(this.timer<500?this.water1:this.water2,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
+								g.drawImage(this.timer<50?this.water1:this.water2,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 								break;
 						case Sprite.METAL:
 								// g.setColor(Color.WHITE);
@@ -92,32 +125,13 @@ public class Paint extends JPanel implements Runnable{
 			}
 		}
 
-
-/*
-		g.setColor(tank.getColor());
-		ArrayList <Missile> ms = tank.getMissiles();
-
-		 for (Object m1 : ms) {
-            Missile m = (Missile) m1;
-            g.fillRect(m.getXPos() ,m.getYPos() ,m.getWidth(),m.getHeight());
-        }
-
-        g.setColor(tank2.getColor());
-        ArrayList <Missile> mss = tank2.getMissiles();
-
-		 for (Object m2 : mss) {
-            Missile mz = (Missile) m2;
-            g.fillRect(mz.getXPos() ,mz.getYPos() ,mz.getWidth(),mz.getHeight());
-        }
-*/
+        for(Tank tank: Paint.tanks){
+        	//System.out.println(tank.toString());
+			g.setColor(tank.getColor());
+			g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());        	
 
 
-        for(int i=0;i<playerCount;i++){
-			g.setColor(Paint.tanks.get(i).getColor());
-			g.fillOval(Paint.tanks.get(i).getXPos() ,Paint.tanks.get(i).getYPos() ,Paint.tanks.get(i).getWidth(),Paint.tanks.get(i).getHeight());        	
-
-
-			ArrayList <Missile> ms = Paint.tanks.get(i).getMissiles();
+			ArrayList <Missile> ms = tank.getMissiles();
 
 		 	for (Object m1 : ms) {
 	            Missile m = (Missile) m1;
@@ -125,13 +139,6 @@ public class Paint extends JPanel implements Runnable{
 	        }
         }
 
-
-/*
-        g.setColor(tank.getColor());
-		g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());//drawImage(tank.getImage(),tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight(),this);
-		g.setColor(tank2.getColor());
-		g.fillOval(tank2.getXPos() ,tank2.getYPos() ,tank2.getWidth(),tank2.getHeight());//drawImage(tank2.getImage(),tank2.getXPos() ,tank2.getYPos() ,tank2.getWidth(),tank2.getHeight(),this);
-		*/
 		for(int j=0;j<mp.length;j++){
 			y = j%w;
 			for(int i=0;i<mp[0].length;i++){
@@ -147,18 +154,82 @@ public class Paint extends JPanel implements Runnable{
 		}
 	}
 
+	public void connect(){
+		boolean starting = false;
+		boolean generating = false;
+		while (true){
+
+			String data = this.receiveData();
+			if(!data.startsWith("GENERATING") && !generating)
+				continue;
+
+			else if (data.startsWith("GENERATING") && !generating){
+				System.out.println("START GENERATING");
+				generating = true;
+				//System.out.println(data.split(" ")[1]);
+				Paint.playerCount = (Integer)Integer.parseInt(data.split(" ")[1]);
+				System.out.println(Paint.playerCount);
+				continue;
+			}
+			// NEW PLAYER NAME TANKID X Y
+			else if (data.startsWith("NEW PLAYER")){
+				System.out.println("GENERATE NEW TANK");
+				String[] playerInfo = data.split(" ");
+				Tank tank = new Tank(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[4]),Integer.parseInt(playerInfo[5]));
+				Paint.tanks.add(tank);
+				Paint.tankThreads.add(new Thread(tank));
+				System.out.println("NEW PLAYER COUNT "+ Paint.tanks.size() +"/"+Paint.playerCount);
+				//System.out.println("STARTING "+ (data.startsWith("STARTING"));// && counter >= Paint.playerCount));
+				continue;
+			}
+			else if (Paint.tanks.size() == Paint.playerCount){
+				System.out.println("GENERATE BOARD");
+				frame.setVisible(true);
+				(new Thread(this)).start();
+				for (Thread trid: tankThreads)
+					trid.start();
+				
+				starting = true;
+				break;
+			}
+			
+
+		}
+	}
 
 	
 
 	public void run(){
 		
+		System.out.println("BOARD IS RUNNING");
 		try{
 			while(true){
-			Thread.sleep(1);
-			
+				
+			String data = receiveData();
+			if (!data.equals("")){
+				String[] dataStream = data.split(" ");
+				for(Tank tank: Paint.tanks){
+					if (!tank.getName().equals(dataStream[1]))
+						continue;
+					else
+						System.out.println("IT RECIEVED!!");
+					if (dataStream[2].equals("PRESSED")){
+						tank.keyPressed(Integer.parseInt(dataStream[3]),dataStream[1]);
+						System.out.println("IT PRESSED!!");
+					}
+					if (dataStream[2].equals("RELEASED")){
+						System.out.println("IT RELEASED!!");
+						tank.keyReleased(Integer.parseInt(dataStream[3]),dataStream[1]);
+					}
+	
+				}
+			}
 
-			this.timer = this.timer != 1000? this.timer+1: 1;
-			repaint();
+			// offscreen.getGraphics().clearRect(0,0,600,600);
+			// setDrawing(offscreen.getGraphics());
+			Thread.sleep(1);
+			this.timer = this.timer != 100? this.timer+1: 1;
+			frame.repaint();
 
 			}
 		}catch(Exception e){
@@ -166,7 +237,7 @@ public class Paint extends JPanel implements Runnable{
 		}
 	}
 
-	public void updateBlock(Sprite object){
+	public static void updateBlock(Sprite object){
 		ArrayList<Block> sp = map.getBlocks();
     	for(int i=0;i<sp.size();i++){
     		if (object.getType() == Sprite.MISSILE && sp.get(i).getType() == Sprite.WATER)
@@ -183,14 +254,15 @@ public class Paint extends JPanel implements Runnable{
 	    				continue;
 	    			}
     				object.collide((Block)sp.get(i));
-    				if(sp.get(i).getType()==Sprite.METAL){
+    				//sounds
+    				/*if(sp.get(i).getType()==Sprite.METAL){
     					try{
 						AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(this.getClass().getResource("Audio/metal.wav"));
 						Clip clip = AudioSystem.getClip();
 						clip.open(audioInputStream);
 						clip.start();
 						}catch(Exception e){}
-    				}
+    				}*/
 	    		}
 	    	}
     		else if(!(sp.get(i).getType()==Sprite.VINE)){
@@ -199,7 +271,7 @@ public class Paint extends JPanel implements Runnable{
     	}
 	}
 
-	public static void send(String msg){
+	public void send(String msg){
 		try{
 			byte[] buf = msg.getBytes();
         	InetAddress address = InetAddress.getByName(server);
@@ -212,59 +284,61 @@ public class Paint extends JPanel implements Runnable{
 
 
 	public static void main(String[] args){
-//	public Paint() {
+		
+		Thread game = new Thread(new Paint(args[0],args[1],Integer.parseInt(args[2])));
+		//game.start();
+	}
+
+	public Paint(String server, String name,int port) {
 		frame = new JFrame("Battle City");
 		frame.setSize(600,600);
 		frame.setResizable(false);
 		frame.setFocusable(true);
 		frame.setIconImage((new ImageIcon ("Tank/Tank.png")).getImage());
-		p.setBackground(Color.BLACK);		
+		this.setBackground(Color.BLACK);		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.add(p);
-		
+		frame.addKeyListener(this);
+		frame.getContentPane().add(this);
+		offscreen=(BufferedImage)this.createImage(600,600);
+
+		this.server = server;
+		this.name = name;
+		this.port = port;
 
 		try{
-	    	Paint.socket = new DatagramSocket();
-		}catch(Exception e){};
+	    	this.socket = new DatagramSocket(port);
+			this.socket.setSoTimeout(100);
+		}catch(IOException e){
+			System.err.println(e);
+            System.err.println("Could not listen on port: "+port);
+            System.exit(-1);}
+          catch(Exception e){};
 
-		Paint.server = args[0];
-		Paint.name = args[1];
 
-		Paint.playerCount = Integer.parseInt(args[2]);
-		for (int i =0;i<Paint.playerCount;i++){
-			Paint.tanks.add(new Tank(i,"player"+i));
-			Paint.tankThreads.add(new Thread(Paint.tanks.get(i)));
-			frame.addKeyListener((KeyListener)Paint.tanks.get(i));
-			Paint.tankThreads.get(i).start();
-		}
-
-/*
-		frame.addKeyListener((KeyListener) tank);
-		frame.addKeyListener((KeyListener) tank2);		
+		this.send("CONNECT "+this.name);
+		this.connect();
 
 		
-		//audiThread.start();
-		tank1Thread.start();
-		tank2Thread.start();*/
-		Paint.send("CONNECT "+Paint.name);
-		frame.addKeyListener((KeyListener) new KeyHandler());
-		board.start();
-		frame.setVisible(true);
 	}
+	public Paint(int playerCount, ArrayList<Player> players){
+			Paint.playerCount = playerCount;
+			for (Player player:players)
+				Paint.tanks.add(new Tank(player.getTank(),player.getName()));
+		}
+	public ArrayList<Tank> getTanks(){
+			return tanks;
+		}
+	public void keyPressed(KeyEvent key){
+		this.send("PLAYER "+this.name+" PRESSED "+ key.getKeyCode());	
+	}
+	public void keyReleased(KeyEvent key){
+		this.send("PLAYER "+this.name+" RELEASED "+ key.getKeyCode());
+	}
+	public void keyTyped(KeyEvent key){
+	}
+	/*public void mouseMoved(MouseEvent mouse){
+		this.send("PLAYER "+this.name+" MOUSE "+ mouse);
+	}*/
 
 } 
 
-class MouseMotionHandler extends MouseMotionAdapter{
-	public void mouseMoved(MouseEvent mouse){
-		Paint.send("PLAYER "+Paint.name+" MOUSE "+ mouse);
-	}
-}
-
-class KeyHandler extends KeyAdapter{
-	public void keyPressed(KeyEvent key){
-		Paint.send("PLAYER "+Paint.name+" PRESSED "+ key);	
-	}
-	public void keyReleased(KeyEvent key){
-		Paint.send("PLAYER "+Paint.name+" RELEASED "+ key);
-	}
-}

@@ -6,6 +6,9 @@ import java.net.DatagramSocket;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
+import java.util.ArrayList;
+import java.awt.Color;
 
 /**
  * The main game server. It just accepts the messages sent by one player to
@@ -15,44 +18,16 @@ import java.util.Map;
  */
 
 public class Server implements Runnable{
-	/**
-	 * Placeholder for the data received from the player
-	 */	 
-	String playerData;
-	
-	/**
-	 * The number of currently connected player
-	 */
-	int playerCount=0;
-	
-	/**
-	 * The socket
-	 */
-    DatagramSocket serverSocket = null;
-    
-    /**
-     * The current game state
-     */
-	//GameState game;
 
-	/**
-	 * The current game stage
-	 */
+	boolean gameON =false;
+	String playerData;
+	int playerCount=0;
+    DatagramSocket serverSocket = null;
+    Paint game;
 	//int gameStage=WAITING_FOR_PLAYERS;
-	
-	/**
-	 * Number of players
-	 */
 	int numPlayers;
-	
-	/**
-	 * The main game thread
-	 */
+	ArrayList<Player> players = new ArrayList<Player>();
 	Thread t = new Thread(this);
-	
-	/**
-	 * Simple constructor
-	 */
 	public Server(){
 		try {
             serverSocket = new DatagramSocket(3000);
@@ -74,13 +49,11 @@ public class Server implements Runnable{
 	 * Helper method for broadcasting data to all players
 	 * @param msg
 	 */
-	/*public void broadcast(String msg){
-		for(Iterator ite=game.getPlayers().keySet().iterator();ite.hasNext();){
-			String name=(String)ite.next();
-			NetPlayer player=(NetPlayer)game.getPlayers().get(name);			
+	public void broadcast(String msg){
+		for(Player player : players){		
 			send(player,msg);	
 		}
-	}*/
+	}
 
 
 	/**
@@ -88,7 +61,7 @@ public class Server implements Runnable{
 	 * @param player
 	 * @param msg
 	 */
-	/*public void send(NetPlayer player, String msg){
+	public void send(Player player, String msg){
 		DatagramPacket packet;	
 		byte buf[] = msg.getBytes();		
 		packet = new DatagramPacket(buf, buf.length, player.getAddress(),player.getPort());
@@ -97,7 +70,17 @@ public class Server implements Runnable{
 		}catch(IOException ioe){
 			ioe.printStackTrace();
 		}
-	}*/
+	}
+
+	private void initGame(){
+		broadcast("GENERATING "+playerCount);
+		game = new Paint(playerCount, players);
+		for(Tank tank : game.getTanks()){
+			// NEW PLAYER NAME TANKID X Y
+			broadcast("NEW "+players.get(tank.getPlayer()).toString()+" "+tank.getXPos()+" "+tank.getYPos());
+		}
+		broadcast("STARTING");
+	}
 	
 	/**
 	 * The juicy part
@@ -121,12 +104,22 @@ public class Server implements Runnable{
 			playerData = playerData.trim();
 
 			if (playerData.startsWith("CONNECT")){
-				playerCount ++;
+				String tokens[] = playerData.split(" ");
+				players.add(new Player(tokens[1],packet.getAddress(),packet.getPort(),playerCount));
+				System.out.println("Player connected: "+tokens[1]);
+				broadcast("CONNECTED "+tokens[1]);
+				playerCount++;
 			}
 			//System.out.println("Player Data: "+playerData);
 
-			if (!playerData.equals("")){
+			else if (!playerData.equals("")){
 				System.out.println("Player Data:"+playerData);
+				broadcast(playerData);
+			}
+
+			if (playerCount == numPlayers && !gameON){
+				initGame();
+				gameON = true;
 			}
 		
 			// process
@@ -184,6 +177,7 @@ public class Server implements Runnable{
 		}*/
 		
 		Server s = new Server();
+		s.numPlayers = Integer.parseInt(args[0]);
 	}
 }
 

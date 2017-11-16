@@ -193,7 +193,7 @@ public abstract class Sprite implements Runnable{
 		Rectangle thisBounds = new Rectangle(this.getXPos() + this.dx,this.getYPos() + this.dy,this.height,this.width);
     	Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
    
-    	return (thisBounds.intersects(objectBounds));
+    	return (this.collision && thisBounds.intersects(objectBounds));
 	}
 
 

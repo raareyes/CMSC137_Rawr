@@ -5,6 +5,7 @@ import javax.swing.ImageIcon;
 import java.util.ArrayList;
 import javax.sound.sampled.*;
 import java.util.Random;
+import java.lang.Math;
 
 public class Tank extends Sprite{ // implements KeyListener{
 	public static final int HEIGHT=15, WIDTH=15;
@@ -22,6 +23,19 @@ public class Tank extends Sprite{ // implements KeyListener{
 	private Color color;
 	public JLabel lives = new JLabel();
 	
+	public Tank(int player,String name, int x, int y){
+		super(x,y,HEIGHT,WIDTH,Sprite.TANK);
+		this.range = 15;
+		this.player = player;
+		this.setCollision(true);
+		this.life = 3;
+		this.spawn();
+		this.name = name;
+		this.color = new Color(x%255,y%255,Math.abs(x-y)%255);
+		this.setCoor(x,y);
+		this.lastKey = KeyEvent.VK_DOWN;
+		//this.setImage = null;//	new ImageIcon("Tank/P2/upS1.png").getImage();
+	}
 	public Tank(int player,String name){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
 		this.range = 15;
@@ -30,17 +44,17 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.life = 3;
 		this.spawn();
 		this.name = name;
-		Random rand = new Random();
-		this.color = new Color(rand.nextFloat(),rand.nextFloat(),rand.nextFloat());
+		this.color = new Color(super.getXPos()%255,super.getYPos()%255,Math.abs(super.getXPos()-super.getYPos())%255);
 		this.lastKey = KeyEvent.VK_DOWN;
 		//this.setImage = null;//	new ImageIcon("Tank/P2/upS1.png").getImage();
 	}
 	public void run(){
+		System.out.println("DA THREAD STARTED");
 		while (life != 0){
 			try{
 				this.reload();
 				this.getSprite().sleep(this.getSpeed());
-				Paint.p.updateBlock(this);
+				Paint.updateBlock(this);
 				boolean flag = false;
 				for (int players = 0;players<Paint.playerCount;players++){
 					if (players == this.player)
@@ -51,6 +65,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 				}
 				if(!flag){
 					this.move();
+					//System.out.println(this.name+" "+super.getXPos()+" "+super.getYPos());
 				}
 				if(this.isDead()){
 		   			this.spawn();	
@@ -107,6 +122,8 @@ public class Tank extends Sprite{ // implements KeyListener{
 									break;
 					default: break;
 				}
+
+			Thread.sleep(this.getSpeed());
 			}catch(Exception e){
 				System.out.println(e.getMessage());
 			}
@@ -151,6 +168,7 @@ public class Tank extends Sprite{ // implements KeyListener{
     		this.changeImageState();
 	    	this.animationState = this.animationState != 10? this.animationState += 1:1;
     	}
+    	this.setDirection(0,0);
 	    
 
 	}
@@ -175,14 +193,19 @@ public class Tank extends Sprite{ // implements KeyListener{
 		mL.remove(m);
 	}
 
-	public void keyPressed(KeyEvent e, int player) {
+	public void keyPressed(int key, String player) {
 				//System.out.println(this.getXPos());
-				int key = e.getKeyCode();
-				if (this.player != player)
+				if (!this.name.equals(player))
 					return;
-			        if ((key == KeyEvent.VK_LEFT) || (key == KeyEvent.VK_A)) {
+				if (((key == KeyEvent.VK_E)
+	        		|| (key == KeyEvent.VK_SPACE))
+	        		&& this.isReloaded()) {
+	        			this.fire();
+	        			this.reloaded = this.reloadDelay;
+	        	}
+			    else if ((key == KeyEvent.VK_LEFT) || (key == KeyEvent.VK_A)) {
 		            this.setDirection(-1,0);
-   		            this.lastKey = e.getKeyCode();
+   		            this.lastKey = key;
 	            	this.direction = 'a';
 	            	this.changeImageState();
    		           
@@ -191,7 +214,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 		        else if ((key == KeyEvent.VK_RIGHT) || (key == KeyEvent.VK_D)) {
 		            this.setDirection(1,0);
-		            this.lastKey = e.getKeyCode();
+		            this.lastKey = key;
 	            	this.direction = 'd';
 	            	this.changeImageState();
 	           
@@ -199,14 +222,14 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 		        else if ((key == KeyEvent.VK_UP) || (key == KeyEvent.VK_W)) {
 		            this.setDirection(0,-1);
-		            this.lastKey = e.getKeyCode();
+		            this.lastKey = key;
 	            	this.direction = 'w';
 	            	this.changeImageState();
 		        }
 
 		        else if ((key == KeyEvent.VK_DOWN) || (key == KeyEvent.VK_S)) {
 		            this.setDirection(0,1);
-		            this.lastKey = e.getKeyCode();
+		            this.lastKey = key;
 	            	this.direction = 's';
 	        	}
 
@@ -256,11 +279,9 @@ public class Tank extends Sprite{ // implements KeyListener{
 	}
 
 
-	public void keyReleased(KeyEvent e, int player) {
-	        
-		        int key = e.getKeyCode();
-
-				if (this.player != player)
+	public void keyReleased(int key, String player) {
+				/*
+				if (!this.name.equals(player))
 					return;
 				
 		        if (((key == KeyEvent.VK_E)
@@ -287,7 +308,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 		        else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {
 		            this.setDirection(0,0);
-	        	}
+	        	}*/
 	        	
 	}
 
@@ -316,6 +337,19 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 	public void setDamage(int damage){
 		this.damage += damage;
+	}
+
+	public String toString(){
+		String retval="";
+		retval+="PLAYER ";
+		retval+=player+" ";
+		retval+=name+" ";
+		retval+=getXPos()+" ";
+		retval+=getYPos();
+		return retval;
+	}
+	public String getName(){
+		return this.name;
 	}
 
 
