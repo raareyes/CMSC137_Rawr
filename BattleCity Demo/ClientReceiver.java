@@ -56,9 +56,14 @@ public class ClientReceiver implements Runnable{
 				System.out.println(e.getMessage());
 			}
 			String data = receiveData(this.socket);
-			if (!data.equals("")){
+			if (!data.equals("") && !data.startsWith("PLAYER OUT")){
 				String[] dataStream = data.split(" ");
 				int tankid = Integer.parseInt(dataStream[1]);
+				if (data.startsWith("RESPAWN")){
+					Tank tank = Paint.tanks.get(tankid);
+					tank.spawn(Integer.parseInt(dataStream[2]),Integer.parseInt(dataStream[3]));
+					tank.setLife(tank.getLife());
+				}
 				int keyid = Integer.parseInt(dataStream[3]);
 				Tank tank = Paint.tanks.get(tankid);
 				System.out.println("IT RECIEVED!!");

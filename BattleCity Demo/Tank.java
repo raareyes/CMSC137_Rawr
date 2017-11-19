@@ -1,5 +1,6 @@
 import java.awt.event.*;
 import java.awt.*;
+//import java.awt.geom;
 import javax.swing.*;
 import javax.swing.ImageIcon;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 	public static final int HEIGHT=15, WIDTH=15;
 	private ArrayList<Missile> mL = new ArrayList<Missile>();
 	private Character direction;
+	private boolean alive = true;
 	private int lastKey;
 	private int player;
 	private int reloadDelay;
@@ -31,7 +33,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.player = player;
 		this.setCollision(true);
 		this.life = 3;
-		this.spawn();
+		this.spawn(x,y);
 		this.name = name;
 		this.color = new Color(x%255,y%255,Math.abs(x-y)%255);
 		this.setCoor(x,y);
@@ -44,7 +46,8 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.player = player;
 		this.setCollision(true);
 		this.life = 3;
-		this.spawn();
+		this.randCoor();
+		this.spawn(super.getXPos(),super.getYPos());
 		this.name = name;
 		this.color = new Color(super.getXPos()%255,super.getYPos()%255,Math.abs(super.getXPos()-super.getYPos())%255);
 		this.lastKey = KeyEvent.VK_DOWN;
@@ -52,7 +55,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 	}
 	public void run(){
 		System.out.println("DA THREAD STARTED");
-		while (life != 0){
+		while (alive){
 			try{
 				this.reload();
 				this.getSprite().sleep(this.getSpeed());
@@ -68,10 +71,6 @@ public class Tank extends Sprite{ // implements KeyListener{
 				if(!flag){
 					this.move();
 					//System.out.println(this.name+" "+super.getXPos()+" "+super.getYPos());
-				}
-				if(this.isDead()){
-		   			this.spawn();	
-		   			this.life --;
 				}
 				
 				switch(this.life) {
@@ -180,12 +179,12 @@ public class Tank extends Sprite{ // implements KeyListener{
 		/*Missile missile = new Missile(this.getXPos()+WIDTH/2 - 2,this.getYPos()+HEIGHT/2 - 2,this.lastKey, this.damage,this);
 		this.mL.add(missile);
 		missile.getSprite().start();*/
-		try{
+		/*try{
 			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(this.getClass().getResource("Audio/fire.wav"));
 			Clip clip = AudioSystem.getClip();
 			clip.open(audioInputStream);
 			clip.start();
-		}catch(Exception e){}
+		}catch(Exception e){}*/
 	}
 
 	public ArrayList<Missile> getMissiles(){
@@ -210,7 +209,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 				if (((key == KeyEvent.VK_E)
 	        		|| (key == KeyEvent.VK_SPACE))
 	        		&& this.isReloaded()) {
-	        			this.fire();
+	        			this.attack();
 	        			this.reloaded = this.reloadDelay;
 	        	}
 			    else if ((key == KeyEvent.VK_LEFT) || (key == KeyEvent.VK_A)) {
@@ -245,11 +244,51 @@ public class Tank extends Sprite{ // implements KeyListener{
 
     			
 	}
-	public void spawn(){
-		this.randCoor();
+
+	public void randCoor(){
+		boolean intersecting = false;
+		int randX, randY;
+		while(true){
+			boolean flag = false;
+			Random rand = new Random();
+			randX = rand.nextInt(570);
+			randY = rand.nextInt(570);
+			super.setCoor(randX,randY);
+
+			Rectangle thisBounds = new Rectangle(randX,randY,Tank.HEIGHT,Tank.WIDTH);
+			for (Sprite object : Paint.map.getBlocks()){
+				if (collisionCheck(object))
+					flag = true;//false;
+	    		/*Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
+	    		if (thisBounds.intersects(objectBounds)){
+	    			intersecting = true;
+	    			break;
+	    		}*/
+			}
+
+			if (flag)
+				continue;
+
+			for (Tank object : Paint.tanks){
+				if (this.player == object.getPlayer())
+					continue;
+				else if (collisionCheck(object))
+					flag = true;
+			}
+
+			if (flag)
+				continue;
+
+			return;
+		}
+
+	}
+
+	public void spawn(int x, int y){
+		this.setCoor(x,y);
 		//this.setCoor(this.player,this.player);
-		this.setHealth(10);
-		this.resetSpeed(10);
+		this.setHealth(1);
+		this.resetSpeed();
 		this.reloadDelay = 50;
 		this.reloaded = 0;
 		this.animationState = 1;
@@ -330,6 +369,38 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 	public void keyTyped(KeyEvent ke) {}
 
+	public void attack(){
+		for (Tank tank : Paint.getTanks()){
+			if (tank.getPlayer() == this.player)
+				continue;
+			this.slash(tank);
+		}
+
+	}
+
+	public void slash(Sprite object){
+		if ((this.lastKey == KeyEvent.VK_LEFT || this.lastKey == KeyEvent.VK_A) &&object.getXPos() > this.getXPos()) {
+			return;
+        }
+
+        else if ((this.lastKey == KeyEvent.VK_RIGHT || this.lastKey == KeyEvent.VK_D) && object.getXPos() < this.getXPos()) {
+        	return;
+        }
+        else if ((this.lastKey == KeyEvent.VK_UP || this.lastKey == KeyEvent.VK_W) && object.getYPos() > this.getYPos()) {
+        	return;
+        }
+
+        else if ((this.lastKey == KeyEvent.VK_DOWN || this.lastKey == KeyEvent.VK_S) && object.getYPos() < this.getYPos()) {
+    		return;
+    	}
+
+		Rectangle thisBounds = new Rectangle(super.getXPos()-this.range,super.getYPos()-this.range,this.range*2+super.getWidth(),this.range*2+super.getHeight());
+    	Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
+
+    	if (thisBounds.intersects(objectBounds))
+    		object.addDamage(this.damage);
+	}
+
 	public void collide(Sprite object){
 		this.setDirection(0,0);
 	}
@@ -370,6 +441,14 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 	public int getRange(){
 		return this.range;
+	}
+
+	public int getLife(){
+		return this.life;
+	}
+
+	public void setLife(int life){
+		this.life = life;
 	}
 
 

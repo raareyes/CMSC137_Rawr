@@ -81,6 +81,24 @@ public class Server implements Runnable{
 		}
 		broadcast("STARTING");
 	}
+
+	private void updateState(String data){
+		if (!data.equals("") && !data.startsWith("PLAYER DIED")){
+			String[] dataStream = data.split(" ");
+			int tankid = Integer.parseInt(dataStream[1]);
+			int keyid = Integer.parseInt(dataStream[3]);
+			Tank tank = game.tanks.get(tankid);
+			//System.out.println("IT RECIEVED!!");
+			if (dataStream[2].equals("PRESSED")){
+				tank.keyPressed(keyid,tankid);
+			//	System.out.println("IT PRESSED!!");
+			}
+			else if (dataStream[2].equals("RELEASED")){
+				// System.out.println("IT RELEASED!!");
+				tank.keyReleased(keyid,tankid);
+			}
+		}
+	}
 	
 	/**
 	 * The juicy part
@@ -103,8 +121,8 @@ public class Server implements Runnable{
 			//remove excess bytes
 			playerData = playerData.trim();
 
+			String tokens[] = playerData.split(" ");
 			if (playerData.startsWith("CONNECT")){
-				String tokens[] = playerData.split(" ");
 				players.add(new Player(tokens[1],packet.getAddress(),packet.getPort(),playerCount));
 				System.out.println("Player connected: "+tokens[1]);
 				broadcast("CONNECTED "+tokens[1]);
@@ -112,9 +130,20 @@ public class Server implements Runnable{
 				System.out.println("Player Count: "+playerCount+"/"+numPlayers);
 			}
 			//System.out.println("Player Data: "+playerData);
+			else if (playerData.startsWith("PLAYER OUT")){
+				continue;
+			}
+			else if (playerData.startsWith("PLAYER DIED")){
+				int id = Integer.parseInt(tokens[2]);
+				Tank tank = game.getTanks().get(id);
+				tank.randCoor();
+				tank.spawn(tank.getXPos(),tank.getYPos());
+				broadcast("RESPAWN "+id+" "+tank.getXPos()+" "+tank.getYPos());
+			}
 
 			else if (playerData.startsWith("PLAYER")){
 				System.out.println("Player Data:"+playerData);
+				updateState(playerData);
 				broadcast(playerData);
 			}
 

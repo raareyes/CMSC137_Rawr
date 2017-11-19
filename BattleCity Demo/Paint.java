@@ -149,7 +149,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 			else if (data.startsWith("NEW PLAYER")){
 				System.out.println("GENERATE NEW TANK");
 				String[] playerInfo = data.split(" ");
-				this.addTank( new Tank(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[4]),Integer.parseInt(playerInfo[5])));
+				Paint.addTank( new Tank(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[4]),Integer.parseInt(playerInfo[5])));
 				System.out.println("NEW PLAYER COUNT "+ Paint.tanks.size() +"/"+Paint.playerCount);
 				//System.out.println("STARTING "+ (data.startsWith("STARTING"));// && counter >= Paint.playerCount));
 				continue;
@@ -158,7 +158,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 				System.out.println("GENERATE BOARD");
 				frame.setVisible(true);
 				(new Thread(this)).start();
-				this.runTankThread();
+				Paint.runTankThread();
 				this.receiver = new Thread (new ClientReceiver(this,this.port,this.socket));
 				receiver.start();
 				starting = true;
@@ -180,16 +180,16 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 	}
 
 //Tank Stuffs
-	public void addTank(Tank tank){
+	public static void addTank(Tank tank){
 		Paint.tanks.add(tank);
 		Paint.tankThreads.add(new Thread(tank));
 	}
 
-	public ArrayList<Tank> getTanks(){
+	public static ArrayList<Tank> getTanks(){
 			return tanks;
 		}
 
-	public void runTankThread(){
+	public static void runTankThread(){
 		for (Thread trid: tankThreads)
 			trid.start();
 	}
@@ -223,8 +223,10 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		}
 
         for(Tank tank: Paint.tanks){
+        	//Range
         	g.setColor(Color.WHITE);
 			g.fillOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
+			//Player
 			g.setColor(tank.getColor());
 			g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());        	
 
@@ -289,6 +291,13 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 			}catch(Exception e){
 				System.out.println(e.getMessage());
 			}
+
+			if (Paint.tanks.get(this.id).getLife() == 0)
+				this.send("PLAYER OUT "+this.id);
+			else if (Paint.tanks.get(this.id).isDead()){
+				this.send("PLAYER DIED "+this.id);
+			}
+
 				this.timer = this.timer != 10? this.timer+1: 1;
 				this.repaint();
 		}
@@ -314,3 +323,17 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 
 } 
 
+/*References
+
+Semi-Circle
+https://stackoverflow.com/questions/8061420/how-to-draw-semi-circle
+
+UDP Connection
+Circle Wars Laboratory Example
+
+Game Mechanics
+Battle City
+Gang Beasts
+
+
+*/

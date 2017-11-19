@@ -60,11 +60,11 @@ public abstract class Sprite implements Runnable{
 	}
 
 	public void setSpeed(int speed){
-		this.speed += speed;
+		this.speed = speed;
 	}
 
-	public void resetSpeed(int speed){
-		this.speed = speed;
+	public void resetSpeed(){
+		this.speed = 10;
 	}
 
 	public int getSpeed(){
@@ -82,43 +82,6 @@ public abstract class Sprite implements Runnable{
 	public void setCoor(int xPos,int yPos){
 		this.xPos = xPos;
 		this.yPos = yPos;
-	}
-
-	public void randCoor(){
-		boolean intersecting = false;
-		int randX, randY;
-		while(true){
-			boolean flag = false;
-			Random rand = new Random();
-			randX = rand.nextInt(570);
-			randY = rand.nextInt(570);
-			this.setCoor(randX,randY);
-
-			Rectangle thisBounds = new Rectangle(randX,randY,Tank.HEIGHT,Tank.WIDTH);
-			for (Sprite object : Paint.map.getBlocks()){
-				if (collisionCheck(object))
-					flag = true;//false;
-	    		/*Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
-	    		if (thisBounds.intersects(objectBounds)){
-	    			intersecting = true;
-	    			break;
-	    		}*/
-			}
-
-			if (flag)
-				continue;
-
-			for (Sprite object : Paint.tanks){
-				if (collisionCheck(object))
-					flag = true;
-			}
-
-			if (flag)
-				continue;
-
-			return;
-		}
-
 	}
 
 	public void setDirection(int dx,int dy){
