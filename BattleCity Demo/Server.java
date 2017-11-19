@@ -10,12 +10,6 @@ import java.util.Random;
 import java.util.ArrayList;
 import java.awt.Color;
 
-/**
- * The main game server. It just accepts the messages sent by one player to
- * another player
- * @author Joseph Anthony C. Hermocilla
- *
- */
 
 public class Server implements Runnable{
 
@@ -25,6 +19,7 @@ public class Server implements Runnable{
 	String host;
     DatagramSocket serverSocket = null;
     Paint game;
+	private int id;
 	//int gameStage=WAITING_FOR_PLAYERS;
 	int numPlayers;
 	ArrayList<Player> players = new ArrayList<Player>();
@@ -118,7 +113,7 @@ public class Server implements Runnable{
 			}
 			//System.out.println("Player Data: "+playerData);
 
-			else if (!playerData.equals("")){
+			else if (playerData.startsWith("PLAYER")){
 				System.out.println("Player Data:"+playerData);
 				broadcast(playerData);
 			}

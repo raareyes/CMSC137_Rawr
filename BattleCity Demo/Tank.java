@@ -21,6 +21,8 @@ public class Tank extends Sprite{ // implements KeyListener{
 	private int range;
 	private String name;
 	private Color color;
+	private long lastPressTime = System.currentTimeMillis();
+	private long lastReleaseTime = System.currentTimeMillis();
 	public JLabel lives = new JLabel();
 	
 	public Tank(int player,String name, int x, int y){
@@ -168,15 +170,16 @@ public class Tank extends Sprite{ // implements KeyListener{
     		this.changeImageState();
 	    	this.animationState = this.animationState != 10? this.animationState += 1:1;
     	}
-    	this.setDirection(0,0);
+
+    	//this.setDirection(0,0);
 	    
 
 	}
 
 	private void fire(){
-		Missile missile = new Missile(this.getXPos()+WIDTH/2 - 2,this.getYPos()+HEIGHT/2 - 2,this.lastKey, this.damage,this);
+		/*Missile missile = new Missile(this.getXPos()+WIDTH/2 - 2,this.getYPos()+HEIGHT/2 - 2,this.lastKey, this.damage,this);
 		this.mL.add(missile);
-		missile.getSprite().start();
+		missile.getSprite().start();*/
 		try{
 			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(this.getClass().getResource("Audio/fire.wav"));
 			Clip clip = AudioSystem.getClip();
@@ -195,6 +198,13 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 	public void keyPressed(int key, int player) {
 				//System.out.println(this.getXPos());
+
+				/*long thistime= System.currentTimeMillis();
+				if (!((thistime-lastPressTime) > 500)){
+					return;
+				}
+					lastPressTime = thistime;*/
+
 				if (!(this.player == (player)))
 					return;
 				if (((key == KeyEvent.VK_E)
@@ -283,7 +293,12 @@ public class Tank extends Sprite{ // implements KeyListener{
 				/*
 				if (!this.player == (player))
 					return;
-				
+				*/
+				/*long thistime= System.currentTimeMillis();
+				if (!((thistime-lastReleaseTime) 	 500)){
+					return;
+				}
+					lastReleaseTime = thistime;*/
 		        if (((key == KeyEvent.VK_E)
 	        		|| (key == KeyEvent.VK_SPACE))
 	        		&& this.isReloaded()) {
@@ -308,7 +323,8 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 		        else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {
 		            this.setDirection(0,0);
-	        	}*/
+	        	}
+		System.out.println("(" +this.getXPos() + ","+this.getYPos()+")");
 	        	
 	}
 
@@ -352,6 +368,9 @@ public class Tank extends Sprite{ // implements KeyListener{
 		return this.name;
 	}
 
+	public int getRange(){
+		return this.range;
+	}
 
 
 }
