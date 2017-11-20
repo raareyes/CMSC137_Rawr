@@ -3,6 +3,7 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.awt.event.*;
 
 /**
  * The main game server. It just accepts the messages sent by one player to
@@ -56,17 +57,26 @@ public class ClientReceiver implements Runnable{
 				System.out.println(e.getMessage());
 			}
 			String data = receiveData(this.socket);
-			if (!data.equals("") && !data.startsWith("PLAYER OUT")){
-				String[] dataStream = data.split(" ");
+			String[] dataStream = data.split(" ");
+			if (data.startsWith("SYNCING PLAYER")){
+				int tankid = Integer.parseInt(dataStream[2]);
+				int x = Integer.parseInt(dataStream[3]);
+				int y = Integer.parseInt(dataStream[4]);
+				Paint.tanks.get(tankid).setCoor(x,y);
+			}
+			else if (!data.equals("") && !data.startsWith("PLAYER OUT")){
 				int tankid = Integer.parseInt(dataStream[1]);
 				if (data.startsWith("RESPAWN")){
 					Tank tank = Paint.tanks.get(tankid);
 					tank.spawn(Integer.parseInt(dataStream[2]),Integer.parseInt(dataStream[3]));
-					tank.setLife(tank.getLife());
+					tank.setLife(tank.getLife()-1);
 				}
 				int keyid = Integer.parseInt(dataStream[3]);
 				Tank tank = Paint.tanks.get(tankid);
 				System.out.println("IT RECIEVED!!");
+				/*if (!((keyid == KeyEvent.VK_E) || (keyid == KeyEvent.VK_SPACE)))
+	        		continue;*/
+
 				if (dataStream[2].equals("PRESSED")){
 					tank.keyPressed(keyid,tankid);
 					System.out.println("IT PRESSED!!");

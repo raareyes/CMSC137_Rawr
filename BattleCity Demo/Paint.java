@@ -75,10 +75,10 @@ public class Paint extends JPanel implements Runnable, KeyListener{
         //check for connection
 		this.send("CONNECT "+this.name);
 		serverData = receiveData(this.socket);
-		while (!serverData.startsWith("CONNECTED "+this.name)){	
-			this.send("CONNECT "+this.name);
-			serverData = receiveData(this.socket);
-		}
+		// while (!serverData.startsWith("CONNECTED "+this.name)){	
+		// 	this.send("CONNECT "+this.name);
+		// 	serverData = receiveData(this.socket);
+		// }
 
 		this.connect();
 
@@ -89,7 +89,8 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 	public Paint(int playerCount, ArrayList<Player> players){
 			Paint.playerCount = playerCount;
 			for (Player player:players)
-				Paint.tanks.add(new Tank(player.getTank(),player.getName()));
+				this.addTank(new Tank(player.getTank(),player.getName()));
+			this.runTankThread();
 		}
 
 
@@ -225,7 +226,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
         for(Tank tank: Paint.tanks){
         	//Range
         	g.setColor(Color.WHITE);
-			g.fillOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
+			g.drawOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
 			//Player
 			g.setColor(tank.getColor());
 			g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());        	

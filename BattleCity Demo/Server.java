@@ -99,13 +99,21 @@ public class Server implements Runnable{
 			}
 		}
 	}
+
+	private void sychronizePosition(){
+		for(Tank tank : game.getTanks()){
+			// NEW PLAYER NAME TANKID X Y
+			broadcast("SYNCING "+tank.toString());
+		}
+	}
 	
 	/**
 	 * The juicy part
 	 */
 	public void run(){
+		int counter = 0;
 		while(true){
-						
+			counter= counter != 1000?counter+1:1;	
 			// Get the data from players
 			byte[] buf = new byte[256];
 			DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -151,6 +159,8 @@ public class Server implements Runnable{
 				initGame();
 				gameON = true;
 			}
+			if (counter%100==0)
+				sychronizePosition();
 		
 			// process
 			/*switch(gameStage){

@@ -430,7 +430,6 @@ public class Tank extends Sprite{ // implements KeyListener{
 		String retval="";
 		retval+="PLAYER ";
 		retval+=player+" ";
-		retval+=name+" ";
 		retval+=getXPos()+" ";
 		retval+=getYPos();
 		return retval;
