@@ -139,6 +139,7 @@ public class Server implements Runnable{
 			}
 			//System.out.println("Player Data: "+playerData);
 			else if (playerData.startsWith("PLAYER OUT")){
+				broadcast("KILL "+Integer.parseInt(tokens[2]));
 				continue;
 			}
 			else if (playerData.startsWith("PLAYER DIED")){

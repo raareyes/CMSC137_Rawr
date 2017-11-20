@@ -450,6 +450,18 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.life = life;
 	}
 
+	public void kill(){
+		this.alive =false;
+	}
+
+	public void revive(){
+		this.alive = true;
+	}
+
+	public boolean isAlive(){
+		return this.alive;
+	}
+
 
 }
 

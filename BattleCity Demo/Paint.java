@@ -225,6 +225,8 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 
         for(Tank tank: Paint.tanks){
         	//Range
+        	if (!tank.isAlive())
+        		continue;
         	g.setColor(Color.WHITE);
 			g.drawOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
 			//Player

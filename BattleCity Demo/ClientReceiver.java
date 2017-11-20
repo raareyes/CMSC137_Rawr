@@ -58,7 +58,10 @@ public class ClientReceiver implements Runnable{
 			}
 			String data = receiveData(this.socket);
 			String[] dataStream = data.split(" ");
-			if (data.startsWith("SYNCING PLAYER")){
+			if (data.startsWith("KILL")){
+				Paint.tanks.get(Integer.parseInt(dataStream[1])).kill();
+			}
+			else if (data.startsWith("SYNCING PLAYER")){
 				int tankid = Integer.parseInt(dataStream[2]);
 				int x = Integer.parseInt(dataStream[3]);
 				int y = Integer.parseInt(dataStream[4]);
