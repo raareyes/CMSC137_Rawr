@@ -80,7 +80,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 
         //check for connection
 		Paint.send("CONNECT "+this.name);
-		serverData = receiveData(this.socket);
+		//serverData = receiveData(this.socket);
 		// while (!serverData.startsWith("CONNECTED "+this.name)){	
 		// 	Paint.send("CONNECT "+this.name);
 		// 	serverData = receiveData(this.socket);
@@ -340,9 +340,6 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 } 
 
 /*References
-
-Semi-Circle
-https://stackoverflow.com/questions/8061420/how-to-draw-semi-circle
 
 UDP Connection
 Circle Wars Laboratory Example

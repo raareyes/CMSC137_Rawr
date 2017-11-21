@@ -172,10 +172,10 @@ public class Server implements Runnable{
 						broadcast(playerData);
 					continue;
 				}
-				System.out.println(tokens[2].equals("SCORES") +" "+ players.get(Integer.parseInt(tokens[1])).getAddress().equals(packet.getAddress()) +" "+ (players.get(Integer.parseInt(tokens[1])).getPort() == packet.getPort()));
-				System.out.println("Packet:"+packet.getAddress()+" "+packet.getPort());
-				System.out.println("Player:"+players.get(Integer.parseInt(tokens[1])).getAddress()+" "+players.get(Integer.parseInt(tokens[1])).getPort());
-				System.out.println("Player "+packet.getAddress()+" Data: "+players.get(Integer.parseInt(tokens[1])).getAddress() +" "+playerData);
+				// System.out.println(tokens[2].equals("SCORES") +" "+ players.get(Integer.parseInt(tokens[1])).getAddress().equals(packet.getAddress()) +" "+ (players.get(Integer.parseInt(tokens[1])).getPort() == packet.getPort()));
+				// System.out.println("Packet:"+packet.getAddress()+" "+packet.getPort());
+				// System.out.println("Player:"+players.get(Integer.parseInt(tokens[1])).getAddress()+" "+players.get(Integer.parseInt(tokens[1])).getPort());
+				// System.out.println("Player "+packet.getAddress()+" Data: "+players.get(Integer.parseInt(tokens[1])).getAddress() +" "+playerData);
 				updateState(playerData);
 				broadcast(playerData);
 			}

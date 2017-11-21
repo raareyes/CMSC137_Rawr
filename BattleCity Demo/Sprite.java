@@ -152,17 +152,16 @@ public abstract class Sprite implements Runnable{
 		this.width = temp;
 	}
 
+	public void addDamage(int damage){
+		this.health -= damage;	
+		//System.out.println(this.health);
+	}
+
 	public boolean collisionCheck(Sprite object){
 		Rectangle thisBounds = new Rectangle(this.getXPos() + this.dx,this.getYPos() + this.dy,this.height,this.width);
     	Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
    
     	return (this.collision && thisBounds.intersects(objectBounds));
-	}
-
-
-	public void addDamage(int damage){
-		this.health -= damage;	
-		//System.out.println(this.health);
 	}
 
 	public abstract void collide(Sprite object);

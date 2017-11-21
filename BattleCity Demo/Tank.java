@@ -26,7 +26,9 @@ public class Tank extends Sprite{ // implements KeyListener{
 	private long lastPressTime = System.currentTimeMillis();
 	private long lastReleaseTime = System.currentTimeMillis();
 	public JLabel lives = new JLabel();
-	
+
+//Constructors
+	//For Client
 	public Tank(int player,String name, int x, int y){
 		super(x,y,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
@@ -41,6 +43,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.lastKey = KeyEvent.VK_DOWN;
 		//this.setImage = null;//	new ImageIcon("Tank/P2/upS1.png").getImage();
 	}
+	//For Server
 	public Tank(int player,String name){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
@@ -55,8 +58,224 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.lastKey = KeyEvent.VK_DOWN;
 		//this.setImage = null;//	new ImageIcon("Tank/P2/upS1.png").getImage();
 	}
+
+	//setting the direction of the movement
+	public void move(){
+
+		if (this.getXPos() + Tank.WIDTH + this.getDX() > 600){
+			this.setDirection(0,this.getDY());
+		}
+		if (this.getYPos() + Tank.HEIGHT + this.getDY() > 600){
+			this.setDirection(this.getDX(),0);
+		}
+		if (this.getYPos() + this.getDY() < 0){
+			this.setDirection(this.getDX(),0);
+		}
+		if (this.getXPos() + this.getDX() < 0){
+			this.setDirection(0,this.getDY());
+		}
+
+			super.move();
+
+    	if (this.getDX() != 0 || this.getDY() != 0){
+    		this.changeImageState();
+	    	this.animationState = this.animationState != 10? this.animationState += 1:1;
+    	}	    
+
+	}
+
+	
+	//randomizing the coordinates
+	public void randCoor(){
+		boolean intersecting = false;
+		int randX, randY;
+		while(true){
+			boolean flag = false;
+			Random rand = new Random();
+			randX = rand.nextInt(570);
+			randY = rand.nextInt(570);
+			super.setCoor(randX,randY);
+
+			Rectangle thisBounds = new Rectangle(randX,randY,Tank.HEIGHT,Tank.WIDTH);
+			for (Sprite object : Paint.map.getBlocks()){
+				if (collisionCheck(object))
+					flag = true;
+			}
+
+			if (flag)
+				continue;
+
+			for (Tank object : Paint.tanks){
+				if (this.player == object.getPlayer())
+					continue;
+				else if (collisionCheck(object))
+					flag = true;
+			}
+
+			if (flag)
+				continue;
+
+			return;
+		}
+
+	}
+
+	//spawning a character
+	public void spawn(int x, int y){
+		this.setCoor(x,y);
+		this.setHealth(1);
+		this.resetSpeed();
+		this.reloadDelay = 50;
+		this.reloaded = 0;
+		this.animationState = 1;
+		this.damage = 1;
+	}
+
+	//animation
+	public void changeImageState(){
+		/*switch (this.direction){
+			case 'w':
+				if (this.animationState < 5)
+            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/upS1.png").getImage()):(new ImageIcon("Tank/P2/upS1.png").getImage()));
+            	else
+            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/upS2.png").getImage()):(new ImageIcon("Tank/P2/upS2.png").getImage()));
+			break;
+			case 'a':
+	            if (this.animationState < 5)
+            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/leftS1.png").getImage()):(new ImageIcon("Tank/P2/leftS1.png").getImage()));
+            	else
+            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/leftS2.png").getImage()):(new ImageIcon("Tank/P2/leftS2.png").getImage()));
+
+			break;
+			case 's':
+				if (this.animationState < 5)
+            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/downS1.png").getImage()):(new ImageIcon("Tank/P2/downS1.png").getImage()));
+            	else
+            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/downS2.png").getImage()):(new ImageIcon("Tank/P2/downS2.png").getImage()));
+			break;
+			case 'd':
+				 if (this.animationState < 5)
+	            	//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/rightS1.png").getImage()):(new ImageIcon("Tank/P2/rightS1.png").getImage()));
+	           	else
+	           		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/rightS2.png").getImage()):(new ImageIcon("Tank/P2/rightS2.png").getImage()));
+			break;
+		}*/
+	}
+
+//Pseudo key listeners
+	public void keyPressed(int key, int player) {
+
+				if (!(this.player == (player)))
+					return;
+				if (((key == KeyEvent.VK_E)
+	        		|| (key == KeyEvent.VK_SPACE))
+	        		&& this.isReloaded()) {
+	        			this.attack();
+	        			this.reloaded = this.reloadDelay;
+	        	}
+
+			    else if ((key == KeyEvent.VK_LEFT) || (key == KeyEvent.VK_A)) {
+		            this.setDirection(-1,0);
+   		            this.lastKey = key;
+	            	this.direction = 'a';
+	            	this.changeImageState();
+		        }
+
+		        else if ((key == KeyEvent.VK_RIGHT) || (key == KeyEvent.VK_D)) {
+		            this.setDirection(1,0);
+		            this.lastKey = key;
+	            	this.direction = 'd';
+	            	this.changeImageState();
+	           
+		        }
+
+		        else if ((key == KeyEvent.VK_UP) || (key == KeyEvent.VK_W)) {
+		            this.setDirection(0,-1);
+		            this.lastKey = key;
+	            	this.direction = 'w';
+	            	this.changeImageState();
+		        }
+
+		        else if ((key == KeyEvent.VK_DOWN) || (key == KeyEvent.VK_S)) {
+		            this.setDirection(0,1);
+		            this.lastKey = key;
+	            	this.direction = 's';
+	        	}
+
+    			
+	}
+
+	public void keyReleased(int key, int player) {
+
+		        if (key != this.lastKey)
+		        	return;
+
+		        else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A) {
+		            this.setDirection(0,0);
+		        }
+
+		        else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D) {
+		            this.setDirection(0,0);
+		        }
+
+		        else if (key == KeyEvent.VK_UP || key == KeyEvent.VK_W) {
+		            this.setDirection(0,0);
+		        }
+
+		        else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {
+		            this.setDirection(0,0);
+	        	}
+		System.out.println("(" +this.getXPos() + ","+this.getYPos()+")");
+	        	
+	}
+
+	//Tries to all enemies
+	public void attack(){
+		for (Tank tank : Paint.getTanks()){
+			if (tank.getPlayer() == this.player)
+				continue;
+			if (this.slash(tank)){
+    			tank.addDamage(this.damage);
+    			if (tank.isDead()){
+    				Paint.send("PLAYER "+this.player+" SCORES "+1);
+    			}
+			}
+		}
+
+	}
+
+	//damages those in range
+	public boolean slash(Sprite object){
+
+    	//checks if in range
+		Rectangle thisBounds = new Rectangle(super.getXPos()-this.range,super.getYPos()-this.range,this.range*2+super.getWidth(),this.range*2+super.getHeight());
+    	Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
+
+    	if (thisBounds.intersects(objectBounds)){
+    		return true;
+    	}
+
+		//checks if facing the right direction
+		if ((this.lastKey == KeyEvent.VK_LEFT || this.lastKey == KeyEvent.VK_A) &&object.getXPos() > this.getXPos()) {
+			return false;
+        }
+        else if ((this.lastKey == KeyEvent.VK_RIGHT || this.lastKey == KeyEvent.VK_D) && object.getXPos() < this.getXPos()) {
+        	return false;
+        }
+        else if ((this.lastKey == KeyEvent.VK_UP || this.lastKey == KeyEvent.VK_W) && object.getYPos() > this.getYPos()) {
+        	return false;
+        }	
+
+        else if ((this.lastKey == KeyEvent.VK_DOWN || this.lastKey == KeyEvent.VK_S) && object.getYPos() < this.getYPos()) {
+    		return false;
+    	}
+
+    	return false;
+	}
+
+	//Player thread
 	public void run(){
-		System.out.println("DA THREAD STARTED");
+		System.out.println("THE THREAD STARTED");
 		while (alive){
 			try{
 				this.reload();
@@ -72,10 +291,10 @@ public class Tank extends Sprite{ // implements KeyListener{
 				}
 				if(!flag){
 					this.move();
-					//System.out.println(this.name+" "+super.getXPos()+" "+super.getYPos());
 				}
 				
-				switch(this.life) {
+				//Life UI changer
+				/*switch(this.life) {
 					case 0: 	this.lives.setIcon(null);
 					
 					
@@ -124,7 +343,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 									}
 									break;
 					default: break;
-				}
+				}*/
 
 			Thread.sleep(this.getSpeed());
 			}catch(Exception e){
@@ -132,276 +351,15 @@ public class Tank extends Sprite{ // implements KeyListener{
 			}
 		}
 		System.out.println("DEAD");
-		//BattleCity1.changeMenu(3);
-		//BattleCity1.clickButton();
 	}
 
-	public boolean isReloaded(){
-		return reloaded==0?true:false;
-	}
-
-	public void reload(){
-		this.reloaded = reloaded == 0? 0:reloaded-1;
-	}
-
-	
-	public void move(){
-
-
-
-
-		if (this.getXPos() + Tank.WIDTH + this.getDX() > 600){
-			this.setDirection(0,this.getDY());
-		}
-		if (this.getYPos() + Tank.HEIGHT + this.getDY() > 600){
-			this.setDirection(this.getDX(),0);
-		}
-		if (this.getYPos() + this.getDY() < 0){
-			this.setDirection(this.getDX(),0);
-		}
-		if (this.getXPos() + this.getDX() < 0){
-			this.setDirection(0,this.getDY());
-		}
-
-			super.move();
-			
-    	
-
-    	if (this.getDX() != 0 || this.getDY() != 0){
-    		this.changeImageState();
-	    	this.animationState = this.animationState != 10? this.animationState += 1:1;
-    	}
-
-    	//this.setDirection(0,0);
-	    
-
-	}
-
-	private void fire(){
-		/*Missile missile = new Missile(this.getXPos()+WIDTH/2 - 2,this.getYPos()+HEIGHT/2 - 2,this.lastKey, this.damage,this);
-		this.mL.add(missile);
-		missile.getSprite().start();*/
-		/*try{
-			AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(this.getClass().getResource("Audio/fire.wav"));
-			Clip clip = AudioSystem.getClip();
-			clip.open(audioInputStream);
-			clip.start();
-		}catch(Exception e){}*/
-	}
-	public void keyPressed(int key, int player) {
-				//System.out.println(this.getXPos());
-
-				/*long thistime= System.currentTimeMillis();
-				if (!((thistime-lastPressTime) > 500)){
-					return;
-				}
-					lastPressTime = thistime;*/
-
-				if (!(this.player == (player)))
-					return;
-				if (((key == KeyEvent.VK_E)
-	        		|| (key == KeyEvent.VK_SPACE))
-	        		&& this.isReloaded()) {
-	        			this.attack();
-	        			this.reloaded = this.reloadDelay;
-	        	}
-			    else if ((key == KeyEvent.VK_LEFT) || (key == KeyEvent.VK_A)) {
-		            this.setDirection(-1,0);
-   		            this.lastKey = key;
-	            	this.direction = 'a';
-	            	this.changeImageState();
-   		           
-					
-		        }
-
-		        else if ((key == KeyEvent.VK_RIGHT) || (key == KeyEvent.VK_D)) {
-		            this.setDirection(1,0);
-		            this.lastKey = key;
-	            	this.direction = 'd';
-	            	this.changeImageState();
-	           
-		        }
-
-		        else if ((key == KeyEvent.VK_UP) || (key == KeyEvent.VK_W)) {
-		            this.setDirection(0,-1);
-		            this.lastKey = key;
-	            	this.direction = 'w';
-	            	this.changeImageState();
-		        }
-
-		        else if ((key == KeyEvent.VK_DOWN) || (key == KeyEvent.VK_S)) {
-		            this.setDirection(0,1);
-		            this.lastKey = key;
-	            	this.direction = 's';
-	        	}
-
-    			
-	}
-
-	public void randCoor(){
-		boolean intersecting = false;
-		int randX, randY;
-		while(true){
-			boolean flag = false;
-			Random rand = new Random();
-			randX = rand.nextInt(570);
-			randY = rand.nextInt(570);
-			super.setCoor(randX,randY);
-
-			Rectangle thisBounds = new Rectangle(randX,randY,Tank.HEIGHT,Tank.WIDTH);
-			for (Sprite object : Paint.map.getBlocks()){
-				if (collisionCheck(object))
-					flag = true;//false;
-	    		/*Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
-	    		if (thisBounds.intersects(objectBounds)){
-	    			intersecting = true;
-	    			break;
-	    		}*/
-			}
-
-			if (flag)
-				continue;
-
-			for (Tank object : Paint.tanks){
-				if (this.player == object.getPlayer())
-					continue;
-				else if (collisionCheck(object))
-					flag = true;
-			}
-
-			if (flag)
-				continue;
-
-			return;
-		}
-
-	}
-
-	public void spawn(int x, int y){
-		this.setCoor(x,y);
-		//this.setCoor(this.player,this.player);
-		this.setHealth(1);
-		this.resetSpeed();
-		this.reloadDelay = 50;
-		this.reloaded = 0;
-		this.animationState = 1;
-		this.damage = 1;
-	}
-
-	public void changeImageState(){
-		/*switch (this.direction){
-			case 'w':
-				if (this.animationState < 5)
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/upS1.png").getImage()):(new ImageIcon("Tank/P2/upS1.png").getImage()));
-            	else
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/upS2.png").getImage()):(new ImageIcon("Tank/P2/upS2.png").getImage()));
-			break;
-			case 'a':
-	            if (this.animationState < 5)
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/leftS1.png").getImage()):(new ImageIcon("Tank/P2/leftS1.png").getImage()));
-            	else
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/leftS2.png").getImage()):(new ImageIcon("Tank/P2/leftS2.png").getImage()));
-
-			break;
-			case 's':
-				if (this.animationState < 5)
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/downS1.png").getImage()):(new ImageIcon("Tank/P2/downS1.png").getImage()));
-            	else
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/downS2.png").getImage()):(new ImageIcon("Tank/P2/downS2.png").getImage()));
-			break;
-			case 'd':
-				 if (this.animationState < 5)
-	            	//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/rightS1.png").getImage()):(new ImageIcon("Tank/P2/rightS1.png").getImage()));
-	           	else
-	           		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/rightS2.png").getImage()):(new ImageIcon("Tank/P2/rightS2.png").getImage()));
-			break;
-		}*/
-
-		
-	}
-
-
-	public void keyReleased(int key, int player) {
-				/*
-				if (!this.player == (player))
-					return;
-				*/
-				/*long thistime= System.currentTimeMillis();
-				if (!((thistime-lastReleaseTime) 	 500)){
-					return;
-				}
-					lastReleaseTime = thistime;*/
-
-		        if (key != this.lastKey)
-		        	return;
-
-		        else if (key == KeyEvent.VK_LEFT || key == KeyEvent.VK_A) {
-		            this.setDirection(0,0);
-		        }
-
-		        else if (key == KeyEvent.VK_RIGHT || key == KeyEvent.VK_D) {
-		            this.setDirection(0,0);
-		        }
-
-		        else if (key == KeyEvent.VK_UP || key == KeyEvent.VK_W) {
-		            this.setDirection(0,0);
-		        }
-
-		        else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {
-		            this.setDirection(0,0);
-	        	}
-		System.out.println("(" +this.getXPos() + ","+this.getYPos()+")");
-	        	
-	}
-
-	public void keyTyped(KeyEvent ke) {}
-
-	public void attack(){
-		for (Tank tank : Paint.getTanks()){
-			if (tank.getPlayer() == this.player)
-				continue;
-			if (this.slash(tank)){
-    			tank.addDamage(this.damage);
-    			if (tank.isDead()){
-    				Paint.send("PLAYER "+this.player+" SCORES "+1);
-    			}
-			}
-		}
-
-	}
-
-	public boolean slash(Sprite object){
-		if ((this.lastKey == KeyEvent.VK_LEFT || this.lastKey == KeyEvent.VK_A) &&object.getXPos() > this.getXPos()) {
-			return false;
-        }
-
-        else if ((this.lastKey == KeyEvent.VK_RIGHT || this.lastKey == KeyEvent.VK_D) && object.getXPos() < this.getXPos()) {
-        	return false;
-        }
-        else if ((this.lastKey == KeyEvent.VK_UP || this.lastKey == KeyEvent.VK_W) && object.getYPos() > this.getYPos()) {
-        	return false;
-        }	
-
-        else if ((this.lastKey == KeyEvent.VK_DOWN || this.lastKey == KeyEvent.VK_S) && object.getYPos() < this.getYPos()) {
-    		return false;
-    	}
-
-		Rectangle thisBounds = new Rectangle(super.getXPos()-this.range,super.getYPos()-this.range,this.range*2+super.getWidth(),this.range*2+super.getHeight());
-    	Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
-
-    	if (thisBounds.intersects(objectBounds)){
-    		return true;
-    	}
-    	return false;
-	}
-
+//getters and setters
 	public void collide(Sprite object){
 		this.setDirection(0,0);
 	}
 
 	public void notCollide(Sprite object){
 		this.move();
-
 	}
 
 	public int getPlayer(){
@@ -420,14 +378,6 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.damage = damage;
 	}
 
-	public String toString(){
-		String retval="";
-		retval+="PLAYER ";
-		retval+=player+" ";
-		retval+=getXPos()+" ";
-		retval+=getYPos();
-		return retval;
-	}
 	public String getName(){
 		return this.name;
 	}
@@ -444,6 +394,10 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.life = life;
 	}
 
+	public boolean isAlive(){
+		return this.alive;
+	}
+
 	public void kill(){
 		this.alive =false;
 	}
@@ -452,17 +406,29 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.alive = true;
 	}
 
-	public boolean isAlive(){
-		return this.alive;
+	public int getScore(){
+		return this.score;
 	}
 
 	public void addScore(int score){
 		this.score += score;
 	}
 
-	public int getScore(){
-		return this.score;
+	public boolean isReloaded(){
+		return reloaded==0?true:false;
 	}
 
+	public void reload(){
+		this.reloaded = reloaded == 0? 0:reloaded-1;
+	}
+
+	public String toString(){
+		String retval="";
+		retval+="PLAYER ";
+		retval+=player+" ";
+		retval+=getXPos()+" ";
+		retval+=getYPos();
+		return retval;
+	}
 }
 
