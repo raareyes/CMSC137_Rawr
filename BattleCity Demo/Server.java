@@ -89,7 +89,11 @@ public class Server implements Runnable{
 			int keyid = Integer.parseInt(dataStream[3]);
 			Tank tank = game.tanks.get(tankid);
 			//System.out.println("IT RECIEVED!!");
-			if (dataStream[2].equals("PRESSED")){
+			if (dataStream[2].equals("SCORES")){
+				tank.addScore(keyid);
+			//	System.out.println("IT PRESSED!!");
+			}
+			else if (dataStream[2].equals("PRESSED")){
 				tank.keyPressed(keyid,tankid);
 			//	System.out.println("IT PRESSED!!");
 			}
@@ -105,6 +109,16 @@ public class Server implements Runnable{
 			// NEW PLAYER NAME TANKID X Y
 			broadcast("SYNCING "+tank.toString());
 		}
+	}
+
+	private boolean checkEnd(){
+		int counter = 0;
+		for(Tank tank : game.getTanks()){
+			// NEW PLAYER NAME TANKID X Y
+			if (tank.isAlive())
+				counter++;
+		}
+		return counter<2;
 	}
 	
 	/**
@@ -139,7 +153,9 @@ public class Server implements Runnable{
 			}
 			//System.out.println("Player Data: "+playerData);
 			else if (playerData.startsWith("PLAYER OUT")){
+
 				broadcast("KILL "+Integer.parseInt(tokens[2]));
+				game.tanks.get(Integer.parseInt(tokens[2])).kill();
 				continue;
 			}
 			else if (playerData.startsWith("PLAYER DIED")){
@@ -151,7 +167,15 @@ public class Server implements Runnable{
 			}
 
 			else if (playerData.startsWith("PLAYER")){
-				System.out.println("Player Data:"+playerData);
+				if (tokens[2].equals("SCORES")){
+					if (players.get(Integer.parseInt(tokens[1])).getAddress().equals(packet.getAddress()) && players.get(Integer.parseInt(tokens[1])).getPort() == packet.getPort())
+						broadcast(playerData);
+					continue;
+				}
+				System.out.println(tokens[2].equals("SCORES") +" "+ players.get(Integer.parseInt(tokens[1])).getAddress().equals(packet.getAddress()) +" "+ (players.get(Integer.parseInt(tokens[1])).getPort() == packet.getPort()));
+				System.out.println("Packet:"+packet.getAddress()+" "+packet.getPort());
+				System.out.println("Player:"+players.get(Integer.parseInt(tokens[1])).getAddress()+" "+players.get(Integer.parseInt(tokens[1])).getPort());
+				System.out.println("Player "+packet.getAddress()+" Data: "+players.get(Integer.parseInt(tokens[1])).getAddress() +" "+playerData);
 				updateState(playerData);
 				broadcast(playerData);
 			}
@@ -160,53 +184,12 @@ public class Server implements Runnable{
 				initGame();
 				gameON = true;
 			}
+			//tries to sychronize the players' position throughout the clients
 			if (counter%100==0)
 				sychronizePosition();
-		
-			// process
-			/*switch(gameStage){
-				  case WAITING_FOR_PLAYERS:
-						//System.out.println("Game State: Waiting for players...");
-						if (playerData.startsWith("CONNECT")){
-							String tokens[] = playerData.split(" ");
-							NetPlayer player=new NetPlayer(tokens[1],packet.getAddress(),packet.getPort());
-							System.out.println("Player connected: "+tokens[1]);
-							game.update(tokens[1].trim(),player);
-							broadcast("CONNECTED "+tokens[1]);
-							playerCount++;
-							if (playerCount==numPlayers){
-								gameStage=GAME_START;
-							}
-						}
-					  break;	
-				  case GAME_START:
-					  System.out.println("Game State: START");
-					  broadcast("START");
-					  gameStage=IN_PROGRESS;
-					  break;
-				  case IN_PROGRESS:
-					  //System.out.println("Game State: IN_PROGRESS");
-					  
-					  //Player data was received!
-					  if (playerData.startsWith("PLAYER")){
-						  //Tokenize:
-						  //The format: PLAYER <player name> <x> <y>
-						  String[] playerInfo = playerData.split(" ");					  
-						  String pname =playerInfo[1];
-						  int x = Integer.parseInt(playerInfo[2].trim());
-						  int y = Integer.parseInt(playerInfo[3].trim());
-						  //Get the player from the game state
-						  NetPlayer player=(NetPlayer)game.getPlayers().get(pname);					  
-						  player.setX(x);
-						  player.setY(y);
-						  //Update the game state
-						  game.update(pname, player);
-						  //Send to all the updated game state
-						  broadcast(game.toString());
-					  }
-					  break;
-			}				  
-		*/}
+			if (checkEnd() && gameON)
+				broadcast("FINISH");
+		}
 
 	}	
 	

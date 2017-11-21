@@ -10,7 +10,6 @@ import java.lang.Math;
 
 public class Tank extends Sprite{ // implements KeyListener{
 	public static final int HEIGHT=15, WIDTH=15;
-	private ArrayList<Missile> mL = new ArrayList<Missile>();
 	private Character direction;
 	private boolean alive = true;
 	private int lastKey;
@@ -21,6 +20,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 	private int life;
 	private int damage;
 	private int range;
+	private int score;
 	private String name;
 	private Color color;
 	private long lastPressTime = System.currentTimeMillis();
@@ -29,6 +29,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 	
 	public Tank(int player,String name, int x, int y){
 		super(x,y,HEIGHT,WIDTH,Sprite.TANK);
+		this.score = 0;
 		this.range = 15;
 		this.player = player;
 		this.setCollision(true);
@@ -42,6 +43,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 	}
 	public Tank(int player,String name){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
+		this.score = 0;
 		this.range = 15;
 		this.player = player;
 		this.setCollision(true);
@@ -186,15 +188,6 @@ public class Tank extends Sprite{ // implements KeyListener{
 			clip.start();
 		}catch(Exception e){}*/
 	}
-
-	public ArrayList<Missile> getMissiles(){
-		return this.mL;
-	}
-
-	public void removeMissile(Missile m){
-		mL.remove(m);
-	}
-
 	public void keyPressed(int key, int player) {
 				//System.out.println(this.getXPos());
 
@@ -338,12 +331,6 @@ public class Tank extends Sprite{ // implements KeyListener{
 					return;
 				}
 					lastReleaseTime = thistime;*/
-		        if (((key == KeyEvent.VK_E)
-	        		|| (key == KeyEvent.VK_SPACE))
-	        		&& this.isReloaded()) {
-	        			this.fire();
-	        			this.reloaded = this.reloadDelay;
-	        	}
 
 		        if (key != this.lastKey)
 		        	return;
@@ -373,32 +360,39 @@ public class Tank extends Sprite{ // implements KeyListener{
 		for (Tank tank : Paint.getTanks()){
 			if (tank.getPlayer() == this.player)
 				continue;
-			this.slash(tank);
+			if (this.slash(tank)){
+    			tank.addDamage(this.damage);
+    			if (tank.isDead()){
+    				Paint.send("PLAYER "+this.player+" SCORES "+1);
+    			}
+			}
 		}
 
 	}
 
-	public void slash(Sprite object){
+	public boolean slash(Sprite object){
 		if ((this.lastKey == KeyEvent.VK_LEFT || this.lastKey == KeyEvent.VK_A) &&object.getXPos() > this.getXPos()) {
-			return;
+			return false;
         }
 
         else if ((this.lastKey == KeyEvent.VK_RIGHT || this.lastKey == KeyEvent.VK_D) && object.getXPos() < this.getXPos()) {
-        	return;
+        	return false;
         }
         else if ((this.lastKey == KeyEvent.VK_UP || this.lastKey == KeyEvent.VK_W) && object.getYPos() > this.getYPos()) {
-        	return;
-        }
+        	return false;
+        }	
 
         else if ((this.lastKey == KeyEvent.VK_DOWN || this.lastKey == KeyEvent.VK_S) && object.getYPos() < this.getYPos()) {
-    		return;
+    		return false;
     	}
 
 		Rectangle thisBounds = new Rectangle(super.getXPos()-this.range,super.getYPos()-this.range,this.range*2+super.getWidth(),this.range*2+super.getHeight());
     	Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
 
-    	if (thisBounds.intersects(objectBounds))
-    		object.addDamage(this.damage);
+    	if (thisBounds.intersects(objectBounds)){
+    		return true;
+    	}
+    	return false;
 	}
 
 	public void collide(Sprite object){
@@ -423,7 +417,7 @@ public class Tank extends Sprite{ // implements KeyListener{
 	}
 
 	public void setDamage(int damage){
-		this.damage += damage;
+		this.damage = damage;
 	}
 
 	public String toString(){
@@ -462,6 +456,13 @@ public class Tank extends Sprite{ // implements KeyListener{
 		return this.alive;
 	}
 
+	public void addScore(int score){
+		this.score += score;
+	}
+
+	public int getScore(){
+		return this.score;
+	}
 
 }
 

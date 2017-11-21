@@ -17,14 +17,15 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 	static ArrayList<Tank> tanks = new ArrayList<Tank>();
 	static ArrayList<Thread> tankThreads = new ArrayList<Thread>();
 	static ArrayList<Block> blocks = map.getBlocks();
+	static int gameState = Paint.INITIALIZATION;
+	private static String server = "localhost";
+    private static DatagramSocket socket;
 
 	//client attributes
 	private ArrayList<Integer> pressedKeys = new ArrayList<Integer>();
-	private String server = "localhost";
 	private JFrame frame;
 	private Thread receiver;
 	private boolean connected=false;
-    private DatagramSocket socket;
 	private String serverData;
 	private String name;
 	private int timer = 1;
@@ -36,6 +37,11 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 	public static final Image WATERICON2 = new ImageIcon("Block/water3.png").getImage();
 	public static final Image BLOCKICON = new ImageIcon("Block/brick2.png").getImage();
 	public static final Image METALICON = new ImageIcon("Block/metal2.png").getImage();
+	public static final int INITIALIZATION = 0;
+	public static final int GAMEON = 11;
+	public static final int KILLED = 22;
+	public static final int RESULTS = 33;
+
 
 //For debugging and testing game only
 	public static void main(String[] args){
@@ -73,10 +79,10 @@ public class Paint extends JPanel implements Runnable, KeyListener{
           catch(Exception e){};
 
         //check for connection
-		this.send("CONNECT "+this.name);
+		Paint.send("CONNECT "+this.name);
 		serverData = receiveData(this.socket);
 		// while (!serverData.startsWith("CONNECTED "+this.name)){	
-		// 	this.send("CONNECT "+this.name);
+		// 	Paint.send("CONNECT "+this.name);
 		// 	serverData = receiveData(this.socket);
 		// }
 
@@ -162,6 +168,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 				Paint.runTankThread();
 				this.receiver = new Thread (new ClientReceiver(this,this.port,this.socket));
 				receiver.start();
+				Paint.gameState = Paint.GAMEON;
 				starting = true;
 				break;
 			}
@@ -170,12 +177,12 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		}
 	}
 	
-	public void send(String msg){
+	public static void send(String msg){
 		try{
 			byte[] buf = msg.getBytes();
-        	InetAddress address = InetAddress.getByName(server);
+        	InetAddress address = InetAddress.getByName(Paint.server);
         	DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 3000);
-        	socket.send(packet);
+        	Paint.socket.send(packet);
         }catch(Exception e){}
 		
 	}
@@ -233,13 +240,6 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 			g.setColor(tank.getColor());
 			g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());        	
 
-
-			ArrayList <Missile> ms = tank.getMissiles();
-
-		 	for (Object m1 : ms) {
-	            Missile m = (Missile) m1;
-	            g.fillRect(m.getXPos() ,m.getYPos() ,m.getWidth(),m.getHeight());
-	        }
         }
 
 		for(int j=0;j<mp.length;j++){
@@ -295,11 +295,24 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 				System.out.println(e.getMessage());
 			}
 
-			if (Paint.tanks.get(this.id).getLife() == 0)
-				this.send("PLAYER OUT "+this.id);
-			else if (Paint.tanks.get(this.id).isDead()){
-				this.send("PLAYER DIED "+this.id);
+			if (Paint.gameState == RESULTS){
+				//int rank = 1;
+				for (Tank tank:Paint.tanks){
+					System.out.println(tank.getName()+"\nStats:\n"+(tank.getLife()>0?("LIVES LEFT: "+tank.getLife()):("KILLED IN ACTION"))+" SCORED "+ tank.getScore()+" KILLS");
+				}
+				break;
 			}
+
+
+			if (Paint.tanks.get(this.id).getLife() == 0){
+				Paint.send("PLAYER OUT "+this.id);
+				Paint.gameState = Paint.KILLED;
+			}
+			else if (Paint.tanks.get(this.id).isDead()){
+				Paint.send("PLAYER DIED "+this.id);
+			}
+
+
 
 				this.timer = this.timer != 10? this.timer+1: 1;
 				this.repaint();
@@ -313,11 +326,11 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 			//stops sending redundant commands
 			if (pressedKeys.size() != 0 && pressedKeys.contains(key.getKeyCode()))
 				return;
-			this.send("PLAYER "+this.id+" PRESSED "+ key.getKeyCode());
+			Paint.send("PLAYER "+this.id+" PRESSED "+ key.getKeyCode());
 			pressedKeys.add(key.getKeyCode());
 	}
 	public void keyReleased(KeyEvent key){
-			this.send("PLAYER "+this.id+" RELEASED "+ key.getKeyCode());
+			Paint.send("PLAYER "+this.id+" RELEASED "+ key.getKeyCode());
 			//releases the key
 			pressedKeys.remove((Object)key.getKeyCode());
 	}

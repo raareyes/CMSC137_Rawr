@@ -58,7 +58,11 @@ public class ClientReceiver implements Runnable{
 			}
 			String data = receiveData(this.socket);
 			String[] dataStream = data.split(" ");
-			if (data.startsWith("KILL")){
+			if (data.startsWith("FINISH")){
+				Paint.gameState = Paint.RESULTS;
+				break;
+			}
+			else if (data.startsWith("KILL")){
 				Paint.tanks.get(Integer.parseInt(dataStream[1])).kill();
 			}
 			else if (data.startsWith("SYNCING PLAYER")){
@@ -79,8 +83,11 @@ public class ClientReceiver implements Runnable{
 				System.out.println("IT RECIEVED!!");
 				/*if (!((keyid == KeyEvent.VK_E) || (keyid == KeyEvent.VK_SPACE)))
 	        		continue;*/
-
-				if (dataStream[2].equals("PRESSED")){
+	        	if (dataStream[2].equals("SCORES")){
+					tank.addScore(keyid);
+					System.out.println("IT SCORED!!");
+				}
+				else if (dataStream[2].equals("PRESSED")){
 					tank.keyPressed(keyid,tankid);
 					System.out.println("IT PRESSED!!");
 				}

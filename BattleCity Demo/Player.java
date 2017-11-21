@@ -19,26 +19,13 @@ public class Player {
 		this.tank = tank;
 	}
 
-	/**
-	 * Returns the address
-	 * @return
-	 */
 	public InetAddress getAddress(){
 		return address;
 	}
 
-	/**
-	 * Returns the port number
-	 * @return
-	 */
 	public int getPort(){
 		return port;
 	}
-
-	/**
-	 * Returns the name of the player
-	 * @return
-	 */
 	public String getName(){
 		return name;
 	}
@@ -53,5 +40,5 @@ public class Player {
 		retval+=name+" ";
 		retval+=tank;
 		return retval;
-	}	
+	}
 }
