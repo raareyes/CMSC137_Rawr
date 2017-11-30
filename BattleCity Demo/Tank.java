@@ -8,12 +8,14 @@ import javax.sound.sampled.*;
 import java.util.Random;
 import java.lang.Math;
 
-public class Tank extends Sprite{ // implements KeyListener{
+public class Tank extends Sprite{
 	public static final int HEIGHT=15, WIDTH=15;
 	private Character direction;
 	private boolean alive = true;
 	private int lastKey;
 	private int player;
+	private int cooldown;
+	private boolean skillReady = true;
 	private int reloadDelay;
 	private int reloaded;
 	private int animationState;
@@ -23,16 +25,14 @@ public class Tank extends Sprite{ // implements KeyListener{
 	private int score;
 	private String name;
 	private Color color;
-	private long lastPressTime = System.currentTimeMillis();
-	private long lastReleaseTime = System.currentTimeMillis();
+	private int playerType;
 	public JLabel lives = new JLabel();
 
 //Constructors
 	//For Client
-	public Tank(int player,String name, int x, int y){
+	public Tank(int player,String name, int x, int y,int playerType){
 		super(x,y,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
-		this.range = 15;
 		this.player = player;
 		this.setCollision(true);
 		this.life = 3;
@@ -41,10 +41,22 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.color = new Color(x%255,y%255,Math.abs(x-y)%255);
 		this.setCoor(x,y);
 		this.lastKey = KeyEvent.VK_DOWN;
-		//this.setImage = null;//	new ImageIcon("Tank/P2/upS1.png").getImage();
+		this.playerType = playerType;
+		if (this.playerType == Ninja.TYPE){
+			this.range = Ninja.RANGE;
+			this.cooldown = Ninja.CD;
+			super.setSpeed(Ninja.SPEED);
+			super.origSpeed(Ninja.SPEED);
+		}
+		else if(this.playerType == Samurai.TYPE){
+			this.range = Samurai.RANGE;
+			this.cooldown = Samurai.CD;
+			super.setSpeed(Samurai.SPEED);
+			super.origSpeed(Samurai.SPEED);
+		}
 	}
 	//For Server
-	public Tank(int player,String name){
+	public Tank(int player,String name,int playerType){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
 		this.range = 15;
@@ -56,6 +68,19 @@ public class Tank extends Sprite{ // implements KeyListener{
 		this.name = name;
 		this.color = new Color(super.getXPos()%255,super.getYPos()%255,Math.abs(super.getXPos()-super.getYPos())%255);
 		this.lastKey = KeyEvent.VK_DOWN;
+		this.playerType = playerType;
+		if (this.playerType == Ninja.TYPE){
+			this.range = Ninja.RANGE;
+			this.cooldown = Ninja.CD;
+			super.setSpeed(Ninja.SPEED);
+			super.origSpeed(Ninja.SPEED);
+		}
+		else if(this.playerType == Samurai.TYPE){
+			this.range = Samurai.RANGE;
+			this.cooldown = Samurai.CD;
+			super.setSpeed(Samurai.SPEED);
+			super.origSpeed(Samurai.SPEED);
+		}
 		//this.setImage = null;//	new ImageIcon("Tank/P2/upS1.png").getImage();
 	}
 
@@ -167,8 +192,10 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 				if (!(this.player == (player)))
 					return;
-				if (((key == KeyEvent.VK_E)
-	        		|| (key == KeyEvent.VK_SPACE))
+				if (key == KeyEvent.VK_E){
+					this.skill();
+				}
+				else if ((key == KeyEvent.VK_SPACE)
 	        		&& this.isReloaded()) {
 	        			this.attack();
 	        			this.reloaded = this.reloadDelay;
@@ -225,7 +252,6 @@ public class Tank extends Sprite{ // implements KeyListener{
 		        else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {
 		            this.setDirection(0,0);
 	        	}
-		System.out.println("(" +this.getXPos() + ","+this.getYPos()+")");
 	        	
 	}
 
@@ -271,6 +297,40 @@ public class Tank extends Sprite{ // implements KeyListener{
     	}
 
     	return false;
+	}
+
+	public void skill(){
+		if (!skillReady)
+			return;
+		skillReady = false;
+		if (this.playerType == Ninja.TYPE){
+			super.setVisibility(false);
+			try{
+				Thread.sleep(2500);
+			}catch(Exception e){
+				System.out.println(e.getMessage());
+			}
+			super.setVisibility(true);
+		}
+		else if (this.playerType == Samurai.TYPE){
+			int counter = 50;
+			while(counter > 0){
+				this.attack();
+				super.setSpeed(5);
+				try{
+				Thread.sleep(10);
+				}catch(Exception e){
+					System.out.println(e.getMessage());
+				}
+				super.resetSpeed();
+				counter --;
+			}
+		}
+		try{
+			Thread.sleep(this.cooldown);
+		}catch(Exception e){
+			System.out.println(e.getMessage());
+		}
 	}
 
 	//Player thread
@@ -384,6 +444,9 @@ public class Tank extends Sprite{ // implements KeyListener{
 
 	public int getRange(){
 		return this.range;
+	}
+	public void setRange(int range){
+		this.range = range;
 	}
 
 	public int getLife(){
