@@ -1,4 +1,8 @@
 import javax.sound.sampled.*;
+
+/*
+ * This class is not yet implemented
+*/
 public class PowerUp extends Block{
 	public final static int SPEED_BOOSTER = 100;
 	public final static int AMMO_UPGRADE = 101;

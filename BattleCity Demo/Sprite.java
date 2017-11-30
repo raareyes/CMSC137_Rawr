@@ -2,7 +2,9 @@ import java.util.Random;
 import java.awt.event.*;
 import java.awt.*;
 
-
+/* 
+ *This abstract class of the visual elements within the program
+*/
 public abstract class Sprite implements Runnable{
 	static final int SPACE = 0;
 	static final int TANK = 1;
@@ -159,9 +161,9 @@ public abstract class Sprite implements Runnable{
 
 	public boolean collisionCheck(Sprite object){
 		Rectangle thisBounds = new Rectangle(this.getXPos() + this.dx,this.getYPos() + this.dy,this.height,this.width);
-    	Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
+    Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
    
-    	return (this.collision && thisBounds.intersects(objectBounds));
+    return (this.collision && thisBounds.intersects(objectBounds));
 	}
 
 	public abstract void collide(Sprite object);

@@ -24,6 +24,7 @@ public class Map{
 		return this.map;
 	}
 
+	//Map.txt file reader
 	public static Map getFromFile(String file){
 		Map layer = null;
 

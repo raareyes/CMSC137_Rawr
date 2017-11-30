@@ -8,10 +8,11 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-public class Paint extends JPanel implements Runnable, KeyListener{
+public class Paint extends JPanel implements Runnable, KeyListener {
 
-	//game attributes
+	/* Game Attributes */
 	static DrawMap map = new DrawMap();
+	//receives the data read from Map.txt by get DrawMap class
 	static int[][] mp = map.getMap();
 	static int playerCount;
 	static ArrayList<Tank> tanks = new ArrayList<Tank>();
@@ -19,7 +20,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 	static ArrayList<Block> blocks = map.getBlocks();
 	static int gameState = Paint.INITIALIZATION;
 	private static String server = "localhost";
-    private static DatagramSocket socket;
+  private static DatagramSocket socket;
 
 	//client attributes
 	private ArrayList<Integer> pressedKeys = new ArrayList<Integer>();
@@ -52,12 +53,16 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		new Paint(args[0],args[1],Integer.parseInt(args[2]));
 		
 	}
-//Constructors
+	//Constructors
 	//Using Paint as Client
 	public Paint(String server, String name,int port) {
+
+		
 		frame = new JFrame("Battle City");
 		frame.setSize(600,600);
-		frame.setResizable(false);
+		//when we add this option to true (resizable), 
+		//we should also be able to dynamically change the size of the window
+		frame.setResizable(false);					
 		frame.setFocusable(true);
 		frame.setIconImage((new ImageIcon ("Tank/Tank.png")).getImage());
 		this.setBackground(Color.BLACK);		
@@ -70,7 +75,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		this.port = port;
 
 		try{
-	    	this.socket = new DatagramSocket(port);
+	    this.socket = new DatagramSocket(port);
 			this.socket.setSoTimeout(100);
 		}catch(IOException e){
 			System.err.println(e);
@@ -93,11 +98,12 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 
 	//Using Paint for Server
 	public Paint(int playerCount, ArrayList<Player> players){
-			Paint.playerCount = playerCount;
-			for (Player player:players)
-				this.addTank(new Tank(player.getTank(),player.getName()));
-			this.runTankThread();
+		Paint.playerCount = playerCount;
+		for (Player player:players){
+			this.addTank(new Tank(player.getTank(), player.getName()));
 		}
+		this.runTankThread();
+	}
 
 
 	//Creating an Empty Working Paint
@@ -113,9 +119,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		frame.getContentPane().add(this);		
 	}
 
-
-
-//Network Connection
+		//Network Connection
 	public String receiveData(DatagramSocket socket){
 		String data;
 		byte[] buf = new byte[256];
@@ -140,9 +144,9 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		while (true){
 
 			String data = this.receiveData(this.socket);
-			if(!data.startsWith("GENERATING") && !generating)
+			if(!data.startsWith("GENERATING") && !generating){
 				continue;
-
+			}
 			else if (data.startsWith("GENERATING") && !generating){
 				System.out.println("START GENERATING");
 				generating = true;
@@ -151,17 +155,16 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 				System.out.println(Paint.playerCount);
 				this.id = (Integer)Integer.parseInt(data.split(" ")[2]);
 				continue;
-			}
-			// NEW PLAYER NAME TANKID X Y
-			else if (data.startsWith("NEW PLAYER")){
+			} 
+				// NEW PLAYER NAME TANKID X Y
+				else if (data.startsWith("NEW PLAYER")) {
 				System.out.println("GENERATE NEW TANK");
 				String[] playerInfo = data.split(" ");
 				Paint.addTank( new Tank(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[4]),Integer.parseInt(playerInfo[5])));
 				System.out.println("NEW PLAYER COUNT "+ Paint.tanks.size() +"/"+Paint.playerCount);
 				//System.out.println("STARTING "+ (data.startsWith("STARTING"));// && counter >= Paint.playerCount));
 				continue;
-			}
-			else if (Paint.tanks.size() == Paint.playerCount){
+			} else if(Paint.tanks.size() == Paint.playerCount) {
 				System.out.println("GENERATE BOARD");
 				frame.setVisible(true);
 				(new Thread(this)).start();
@@ -173,17 +176,16 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 				break;
 			}
 			
-
 		}
 	}
 	
 	public static void send(String msg){
 		try{
 			byte[] buf = msg.getBytes();
-        	InetAddress address = InetAddress.getByName(Paint.server);
-        	DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 3000);
-        	Paint.socket.send(packet);
-        }catch(Exception e){}
+			InetAddress address = InetAddress.getByName(Paint.server);
+			DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 3000);
+			Paint.socket.send(packet);
+		} catch(Exception e) {}
 		
 	}
 
@@ -202,10 +204,17 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 			trid.start();
 	}
 
-//UI Stuffs
+
+	//UI Section
+
+	/* 
+	 * this sets and adds the elements needed in the game
+	*/
 	private void setDrawing(Graphics g){
 		int x, y;
 		int h = Map.BOARD_HEIGHT/Map.BLOCK_HEIGHT, w = Map.BOARD_WIDTH/Map.BLOCK_WIDTH;
+		System.out.println("mp.length: " + mp.length);
+		
 		for(int j=0;j<mp.length;j++){
 			y = j%w;
 			for(int i=0;i<mp[0].length;i++){
@@ -230,19 +239,18 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 			}
 		}
 
-        for(Tank tank: Paint.tanks){
-        	//Range
-        	if (!tank.isAlive())
-        		continue;
-        	g.setColor(Color.WHITE);
+		for(Tank tank: Paint.tanks) {
+			//Range
+			if (!tank.isAlive())
+				continue;
+			g.setColor(Color.WHITE);
 			g.drawOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
 			//Player
 			g.setColor(tank.getColor());
 			g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());        	
+		}
 
-        }
-
-		for(int j=0;j<mp.length;j++){
+		for(int j=0;j<mp.length;j++) {
 			y = j%w;
 			for(int i=0;i<mp[0].length;i++){
 				x = i%w;
@@ -255,6 +263,9 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		}
 	}
 
+	/* 
+	 * enables the drawing of component in the Paint class
+	*/
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		setDrawing(g);
@@ -285,7 +296,7 @@ public class Paint extends JPanel implements Runnable, KeyListener{
     	}
 	}
 
-//UI Thread
+/* UI Thread */
 	public void run(){
 		System.out.println("BOARD IS RUNNING");
 		while(true){
@@ -319,21 +330,23 @@ public class Paint extends JPanel implements Runnable, KeyListener{
 		}
 	}
 
-//Key Listeners
+	/* 
+   * Key listeners	
+	*/
 	public void keyPressed(KeyEvent key){
-
-
-			//stops sending redundant commands
-			if (pressedKeys.size() != 0 && pressedKeys.contains(key.getKeyCode()))
-				return;
-			Paint.send("PLAYER "+this.id+" PRESSED "+ key.getKeyCode());
-			pressedKeys.add(key.getKeyCode());
+		//stops sending redundant commands
+		if (pressedKeys.size() != 0 && pressedKeys.contains(key.getKeyCode()))
+			return;
+		Paint.send("PLAYER "+this.id+" PRESSED "+ key.getKeyCode());
+		pressedKeys.add(key.getKeyCode());
 	}
+
 	public void keyReleased(KeyEvent key){
 			Paint.send("PLAYER "+this.id+" RELEASED "+ key.getKeyCode());
 			//releases the key
 			pressedKeys.remove((Object)key.getKeyCode());
 	}
+
 	public void keyTyped(KeyEvent key){
 	}
 

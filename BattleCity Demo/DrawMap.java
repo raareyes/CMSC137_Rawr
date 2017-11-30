@@ -1,4 +1,6 @@
-
+/*
+ * This class statically loads data from Map.txt file
+ */
 import java.util.ArrayList;
 import java.util.Random;
 import javax.sound.sampled.*;

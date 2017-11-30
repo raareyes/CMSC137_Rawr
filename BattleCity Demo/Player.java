@@ -1,5 +1,9 @@
 import java.net.InetAddress;
 
+
+/* 
+ * abstraction for a player object in the program
+*/
 public class Player {
 	private InetAddress address;
 	private int port;

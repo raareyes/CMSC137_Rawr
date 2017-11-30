@@ -7,7 +7,7 @@ import java.net.DatagramSocket;
 
 public class ClientReceiver implements Runnable{
 
-    DatagramSocket socket = null;
+  DatagramSocket socket = null;
 	int port;
 	Paint game;
 	Thread t = new Thread(this);
@@ -28,8 +28,10 @@ public class ClientReceiver implements Runnable{
  			socket.receive(packet);
 		}catch(Exception ioe){}
 		
+		//convert data 
 		data=new String(buf);
 		
+		//clean unecessary data
 		data = data.trim();
 
 		if (!data.equals("")){
