@@ -305,32 +305,21 @@ public class Tank extends Sprite{
 		skillReady = false;
 		if (this.playerType == Ninja.TYPE){
 			super.setVisibility(false);
-			try{
-				Thread.sleep(2500);
-			}catch(Exception e){
-				System.out.println(e.getMessage());
-			}
+			for (int i=0;i!=this.cooldown*10;i++);
 			super.setVisibility(true);
 		}
 		else if (this.playerType == Samurai.TYPE){
 			int counter = 50;
+			super.setSpeed(5);
 			while(counter > 0){
-				this.attack();
-				super.setSpeed(5);
-				try{
-				Thread.sleep(10);
-				}catch(Exception e){
-					System.out.println(e.getMessage());
-				}
-				super.resetSpeed();
+				for (int i=0;i!=100;i++);
 				counter --;
 			}
+			super.resetSpeed();
 		}
-		try{
-			Thread.sleep(this.cooldown);
-		}catch(Exception e){
-			System.out.println(e.getMessage());
-		}
+		
+		for (int i=0;i!=this.cooldown*10;i++);
+			this.skillReady = true;
 	}
 
 	//Player thread

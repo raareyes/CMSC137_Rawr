@@ -231,9 +231,9 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 								g.drawImage(Paint.BLOCKICON,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 								break;
 						case Sprite.WATER:
-								if ((x+y)%2 == 1)
-									g.drawImage(this.timer<5?Paint.WATERICON1:Paint.WATERICON2,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
-								else
+								// if ((x+y)%2 == 1)
+								// 	g.drawImage(this.timer<5?Paint.WATERICON1:Paint.WATERICON2,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
+								// else
 									g.drawImage(this.timer<5?Paint.WATERICON2:Paint.WATERICON1,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 
 								break;
@@ -277,7 +277,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		super.paintComponent(g);
 		setDrawing(g);
 	}
-
+//Useless for now, this kills blocks
 	public static void updateBlock(Sprite object){
 		ArrayList<Block> sp = map.getBlocks();
     	for(int i=0;i<sp.size();i++){

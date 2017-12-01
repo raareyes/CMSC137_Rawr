@@ -71,7 +71,7 @@ public abstract class Sprite implements Runnable{
 	}
 
 	public void resetSpeed(){
-		this.speed = 10;
+		this.speed = this.origSpeed;
 	}
 
 	public int getSpeed(){
@@ -165,7 +165,10 @@ public abstract class Sprite implements Runnable{
 	}
 
 	public boolean collisionCheck(Sprite object){
-		Rectangle thisBounds = new Rectangle(this.getXPos() + this.dx,this.getYPos() + this.dy,this.height,this.width);
+	// if (!this.canCollide())
+	// 	return false;
+
+	Rectangle thisBounds = new Rectangle(this.getXPos() + this.dx,this.getYPos() + this.dy,this.height,this.width);
     Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
    
     return (this.collision && thisBounds.intersects(objectBounds));
