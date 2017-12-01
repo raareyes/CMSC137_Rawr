@@ -22,9 +22,10 @@ public class Server implements Runnable{
 	private int id;
 	//int gameStage=WAITING_FOR_PLAYERS;
 	int numPlayers;
+	int port;
 	ArrayList<Player> players = new ArrayList<Player>();
 	Thread t = new Thread(this);
-	public Server(String name,int numPlayers){
+	public Server(String name,int numPlayers,int port){
 		try {
             serverSocket = new DatagramSocket(3000);
 			serverSocket.setSoTimeout(100);
@@ -36,7 +37,8 @@ public class Server implements Runnable{
 	//	game = new GameState();
 		this.host = name;
 		this.numPlayers = numPlayers;
-		//Start the game thread
+		this.port = port;
+		//Start the game server thread
 		t.start();
 		System.out.println("Game created...");
 		
@@ -126,6 +128,7 @@ public class Server implements Runnable{
 	 */
 	public void run(){
 		int counter = 0;
+		System.out.println("Listening at port "+this.port);
 		while(true){
 			counter= counter != 1000?counter+1:1;	
 			// Get the data from players
@@ -145,7 +148,7 @@ public class Server implements Runnable{
 
 			String tokens[] = playerData.split(" ");
 			if (playerData.startsWith("CONNECT")){
-				players.add(new Player(tokens[1],packet.getAddress(),packet.getPort(),playerCount));
+				players.add(new Player(tokens[1],packet.getAddress(),packet.getPort(),playerCount,Integer.parseInt(tokens[2])));
 				System.out.println("Player connected: "+tokens[1]);
 				broadcast("CONNECTED "+tokens[1]);
 				playerCount++;
@@ -195,12 +198,12 @@ public class Server implements Runnable{
 	
 	
 	public static void main(String args[]){
-		/*if (args.length != 1){
-			System.out.println("Usage: java -jar circlewars-server <number of players>");
+		if (args.length <3 ){
+			System.out.println("Usage: java Server <name> <number of players> <port>");
 			System.exit(1);
-		}*/
+		}
 		
-		Server s = new Server(args[0],Integer.parseInt(args[1]));
+		Server s = new Server(args[0],Integer.parseInt(args[1]),Integer.parseInt(args[2]));
 		//new Paint("localhost",args[0],4000);
 	}
 }

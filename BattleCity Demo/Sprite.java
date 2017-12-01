@@ -3,7 +3,7 @@ import java.awt.event.*;
 import java.awt.*;
 
 /* 
- *This abstract class of the visual elements within the program
+ *This super class of the elements within the program
 */
 public abstract class Sprite implements Runnable{
 	static final int SPACE = 0;
@@ -20,6 +20,7 @@ public abstract class Sprite implements Runnable{
 	private int xPos, dx;
 	private int yPos, dy;
 	private int speed;
+	private int origSpeed;
 	private int height;
 	private int width;
 	private int health;
@@ -64,9 +65,13 @@ public abstract class Sprite implements Runnable{
 	public void setSpeed(int speed){
 		this.speed = speed;
 	}
+	
+	public void origSpeed(int speed){
+		this.origSpeed = speed;
+	}
 
 	public void resetSpeed(){
-		this.speed = 10;
+		this.speed = this.origSpeed;
 	}
 
 	public int getSpeed(){
@@ -160,7 +165,10 @@ public abstract class Sprite implements Runnable{
 	}
 
 	public boolean collisionCheck(Sprite object){
-		Rectangle thisBounds = new Rectangle(this.getXPos() + this.dx,this.getYPos() + this.dy,this.height,this.width);
+	// if (!this.canCollide())
+	// 	return false;
+
+	Rectangle thisBounds = new Rectangle(this.getXPos() + this.dx,this.getYPos() + this.dy,this.height,this.width);
     Rectangle objectBounds = new Rectangle(object.getXPos(),object.getYPos(),object.getHeight(),object.getWidth());
    
     return (this.collision && thisBounds.intersects(objectBounds));

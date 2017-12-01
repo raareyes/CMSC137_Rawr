@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Random;
+
 
 public class Paint extends JPanel implements Runnable, KeyListener {
 
@@ -20,7 +22,8 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	static ArrayList<Block> blocks = map.getBlocks();
 	static int gameState = Paint.INITIALIZATION;
 	private static String server = "localhost";
-  private static DatagramSocket socket;
+	private static DatagramSocket socket;
+	private static int serverPort;
 
 	//client attributes
 	private ArrayList<Integer> pressedKeys = new ArrayList<Integer>();
@@ -31,13 +34,16 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	private String name;
 	private int timer = 1;
 	private int port;
+	
 	private int id;
 	private int lastPressed = 99999;
+	private int type;
 
 	public static final Image WATERICON1 = new ImageIcon("Block/water2.png").getImage();
 	public static final Image WATERICON2 = new ImageIcon("Block/water3.png").getImage();
 	public static final Image BLOCKICON = new ImageIcon("Block/brick2.png").getImage();
 	public static final Image METALICON = new ImageIcon("Block/metal2.png").getImage();
+	public static final Image GRASSICON = new ImageIcon("Block/grass.png").getImage();
 	public static final int INITIALIZATION = 0;
 	public static final int GAMEON = 11;
 	public static final int KILLED = 22;
@@ -46,19 +52,19 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 //For debugging and testing game only
 	public static void main(String[] args){
-		if (args.length != 3){
-			System.out.println("Usage: java Paint <server-address> <name> <port>");
+		if (args.length < 4){
+			System.out.println("Usage: java Paint <server-address> <name> <server-port> <Choose: 15-Ninja|25-Samurai>");
 			System.exit(1);
 		}
-		new Paint(args[0],args[1],Integer.parseInt(args[2]));
+		new Paint(args[0],args[1],Integer.parseInt(args[2]),Integer.parseInt(args[3]));
 		
 	}
 	//Constructors
 	//Using Paint as Client
-	public Paint(String server, String name,int port) {
+	public Paint(String server, String name,int serverPort, int type) {
 
 		
-		frame = new JFrame("Battle City");
+		frame = new JFrame("Ninjas and Samurai");
 		frame.setSize(600,600);
 		//when we add this option to true (resizable), 
 		//we should also be able to dynamically change the size of the window
@@ -69,28 +75,28 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(this);
 		frame.getContentPane().add(this);
+		this.type = type;
 
 		this.server = server;
 		this.name = name;
-		this.port = port;
+		this.serverPort = serverPort;
 
-		try{
-	    this.socket = new DatagramSocket(port);
-			this.socket.setSoTimeout(100);
-		}catch(IOException e){
-			System.err.println(e);
-            System.err.println("Could not listen on port: "+port);
-            System.exit(-1);}
-          catch(Exception e){};
-
-        //check for connection
-		Paint.send("CONNECT "+this.name);
-		//serverData = receiveData(this.socket);
-		// while (!serverData.startsWith("CONNECTED "+this.name)){	
-		// 	Paint.send("CONNECT "+this.name);
-		// 	serverData = receiveData(this.socket);
-		// }
-
+		boolean randomizePort = true;
+		while(randomizePort){
+			try{
+				Random rand = new Random();
+				this.port = 5000 + rand.nextInt(2000);
+		    	this.socket = new DatagramSocket(port);
+				this.socket.setSoTimeout(100);
+				randomizePort=false;
+			}catch(IOException e){
+				System.err.println(e);
+	            System.err.println("Could not listen on port: "+port);
+	            System.exit(-1);}
+	          catch(Exception e){};
+		}
+		//notify the server
+		Paint.send("CONNECT "+this.name+" "+this.type);
 		this.connect();
 
 		
@@ -100,7 +106,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	public Paint(int playerCount, ArrayList<Player> players){
 		Paint.playerCount = playerCount;
 		for (Player player:players){
-			this.addTank(new Tank(player.getTank(), player.getName()));
+			this.addTank(new Tank(player.getTank(), player.getName(), player.getType()));
 		}
 		this.runTankThread();
 	}
@@ -108,11 +114,11 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 	//Creating an Empty Working Paint
 	public Paint() {
-		frame = new JFrame("Battle City");
+		frame = new JFrame("Ninjas and Samurai");
 		frame.setSize(600,600);
 		frame.setResizable(false);
 		frame.setFocusable(true);
-		frame.setIconImage((new ImageIcon ("Tank/Tank.png")).getImage());
+		//frame.setIconImage((new ImageIcon ("Tank/Tank.png")).getImage());
 		this.setBackground(Color.BLACK);		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(this);
@@ -156,11 +162,11 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 				this.id = (Integer)Integer.parseInt(data.split(" ")[2]);
 				continue;
 			} 
-				// NEW PLAYER NAME TANKID X Y
+				// NEW PLAYER NAME TANKID TYPE X Y
 				else if (data.startsWith("NEW PLAYER")) {
 				System.out.println("GENERATE NEW TANK");
 				String[] playerInfo = data.split(" ");
-				Paint.addTank( new Tank(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[4]),Integer.parseInt(playerInfo[5])));
+				Paint.addTank( new Tank(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[5]),Integer.parseInt(playerInfo[6]),Integer.parseInt(playerInfo[4])));
 				System.out.println("NEW PLAYER COUNT "+ Paint.tanks.size() +"/"+Paint.playerCount);
 				//System.out.println("STARTING "+ (data.startsWith("STARTING"));// && counter >= Paint.playerCount));
 				continue;
@@ -183,7 +189,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		try{
 			byte[] buf = msg.getBytes();
 			InetAddress address = InetAddress.getByName(Paint.server);
-			DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 3000);
+			DatagramPacket packet = new DatagramPacket(buf, buf.length, address, Paint.serverPort);
 			Paint.socket.send(packet);
 		} catch(Exception e) {}
 		
@@ -213,21 +219,21 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	private void setDrawing(Graphics g){
 		int x, y;
 		int h = Map.BOARD_HEIGHT/Map.BLOCK_HEIGHT, w = Map.BOARD_WIDTH/Map.BLOCK_WIDTH;
-		System.out.println("mp.length: " + mp.length);
 		
 		for(int j=0;j<mp.length;j++){
 			y = j%w;
 			for(int i=0;i<mp[0].length;i++){
 				x = i%w;
+				g.drawImage(Paint.GRASSICON,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 				if (!(blocks.get(j+i).isDead())){
 					switch(mp[j][i]){
 						case Sprite.BRICK:
 								g.drawImage(Paint.BLOCKICON,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 								break;
 						case Sprite.WATER:
-								if ((x+y)%2 == 1)
-									g.drawImage(this.timer<5?Paint.WATERICON1:Paint.WATERICON2,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
-								else
+								// if ((x+y)%2 == 1)
+								// 	g.drawImage(this.timer<5?Paint.WATERICON1:Paint.WATERICON2,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
+								// else
 									g.drawImage(this.timer<5?Paint.WATERICON2:Paint.WATERICON1,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 
 								break;
@@ -241,12 +247,13 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 		for(Tank tank: Paint.tanks) {
 			//Range
-			if (!tank.isAlive())
+			if (!tank.isAlive()|| !tank.isVisible())
 				continue;
 			g.setColor(Color.WHITE);
 			g.drawOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
 			//Player
 			g.setColor(tank.getColor());
+			g.drawString(tank.getName(),tank.getXPos()-10,tank.getYPos()+30);
 			g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());        	
 		}
 
@@ -270,7 +277,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		super.paintComponent(g);
 		setDrawing(g);
 	}
-
+//Useless for now, this kills blocks
 	public static void updateBlock(Sprite object){
 		ArrayList<Block> sp = map.getBlocks();
     	for(int i=0;i<sp.size();i++){
