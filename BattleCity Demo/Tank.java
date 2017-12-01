@@ -15,7 +15,7 @@ public class Tank extends Sprite{
 	private int lastKey;
 	private int player;
 	private int cooldown;
-	private boolean skillReady = true;
+	private CooldownTimer skillTimer;
 	private int reloadDelay;
 	private int reloaded;
 	private int animationState;
@@ -45,12 +45,14 @@ public class Tank extends Sprite{
 		if (this.playerType == Ninja.TYPE){
 			this.range = Ninja.RANGE;
 			this.cooldown = Ninja.CD;
+			this.skillTimer = new CooldownTimer(Ninja.CD,Ninja.CD/2,this);
 			super.setSpeed(Ninja.SPEED);
 			super.origSpeed(Ninja.SPEED);
 		}
 		else if(this.playerType == Samurai.TYPE){
 			this.range = Samurai.RANGE;
 			this.cooldown = Samurai.CD;
+			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/100,this);
 			super.setSpeed(Samurai.SPEED);
 			super.origSpeed(Samurai.SPEED);
 		}
@@ -72,12 +74,14 @@ public class Tank extends Sprite{
 		if (this.playerType == Ninja.TYPE){
 			this.range = Ninja.RANGE;
 			this.cooldown = Ninja.CD;
+			this.skillTimer = new CooldownTimer(Ninja.CD,Ninja.CD/2,this);
 			super.setSpeed(Ninja.SPEED);
 			super.origSpeed(Ninja.SPEED);
 		}
 		else if(this.playerType == Samurai.TYPE){
 			this.range = Samurai.RANGE;
 			this.cooldown = Samurai.CD;
+			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/8,this);
 			super.setSpeed(Samurai.SPEED);
 			super.origSpeed(Samurai.SPEED);
 		}
@@ -300,26 +304,7 @@ public class Tank extends Sprite{
 	}
 
 	public void skill(){
-		if (!skillReady)
-			return;
-		skillReady = false;
-		if (this.playerType == Ninja.TYPE){
-			super.setVisibility(false);
-			for (int i=0;i!=this.cooldown*10;i++);
-			super.setVisibility(true);
-		}
-		else if (this.playerType == Samurai.TYPE){
-			int counter = 50;
-			super.setSpeed(5);
-			while(counter > 0){
-				for (int i=0;i!=100;i++);
-				counter --;
-			}
-			super.resetSpeed();
-		}
-		
-		for (int i=0;i!=this.cooldown*10;i++);
-			this.skillReady = true;
+		this.skillTimer.activate();
 	}
 
 	//Player thread
@@ -440,6 +425,10 @@ public class Tank extends Sprite{
 
 	public int getLife(){
 		return this.life;
+	}
+
+	public int getPlayerType(){
+		return this.playerType;
 	}
 
 	public void setLife(int life){
