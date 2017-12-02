@@ -8,7 +8,7 @@ public class Player {
 	private InetAddress address;
 	private int port;
 	private String name;
-	private int tank;
+	private int player;
 	private int type;
 
 	/**
@@ -17,11 +17,11 @@ public class Player {
 	 * @param address
 	 * @param port
 	 */
-	public Player(String name,InetAddress address, int port, int tank, int type){
+	public Player(String name,InetAddress address, int port, int player, int type){
 		this.address = address;
 		this.port = port;
 		this.name = name;
-		this.tank = tank;
+		this.player = player;
 		this.type = type;
 	}
 
@@ -36,8 +36,8 @@ public class Player {
 		return name;
 	}
 	
-	public int getTank(){
-		return tank;
+	public int getUnit(){
+		return player;
 	}
 
 	public int getType(){
@@ -48,7 +48,7 @@ public class Player {
 		String retval="";
 		retval+="PLAYER ";
 		retval+=name+" ";
-		retval+=tank+" ";
+		retval+=player+" ";
 		retval+=type;
 		return retval;
 	}

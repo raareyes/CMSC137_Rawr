@@ -3,33 +3,33 @@ public class CooldownTimer implements Runnable{
 	private int cooldown;
 	private int skillCooldown;
 	private boolean ready;
-	private Tank tank;
+	private Unit player;
 
-	public CooldownTimer(int cooldown, int skillCooldown, Tank tank){
+	public CooldownTimer(int cooldown, int skillCooldown, Unit player){
 		this.cooldown = cooldown;
 		this.skillCooldown = skillCooldown;
-		this.tank = tank;
+		this.player = player;
 		this.ready = true;
 	}
 
 //Contains the usage of skill and 
 	public void run(){
 		//this is the skill of ninja
-		if (this.tank.getPlayerType() == Ninja.TYPE){
-			this.tank.setVisibility(false); //turns invisible
+		if (this.player.getPlayerType() == Ninja.TYPE){
+			this.player.setVisibility(false); //turns invisible
 			try{
 				Thread.sleep(this.skillCooldown);
 			}catch(Exception e){
 				System.out.println(e.getMessage());
 			}	
-			this.tank.setVisibility(true); //returns visibility
+			this.player.setVisibility(true); //returns visibility
 		}
 		//this is the skill of sumurai
-		else if (this.tank.getPlayerType() == Samurai.TYPE){
+		else if (this.player.getPlayerType() == Samurai.TYPE){
 			int counter = 20;
-			this.tank.setSpeed(5); // charging speed (speed buff)
+			this.player.setSpeed(5); // charging speed (speed buff)
 			while (counter > 0){	//attacks 20 times with half second difference
-				this.tank.attack();
+				this.player.attack();
 				try{
 					Thread.sleep(this.skillCooldown);
 				}catch(Exception e){
@@ -37,7 +37,7 @@ public class CooldownTimer implements Runnable{
 				}
 				counter --;
 			}
-			this.tank.resetSpeed();
+			this.player.resetSpeed();
 		}
 		try{
 		Thread.sleep(this.cooldown);	//the skill cooldown

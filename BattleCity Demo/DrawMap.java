@@ -24,8 +24,7 @@ public class DrawMap{
 	}
 
 	public void removeBlock(Block block){
-		if (block.getType() == Sprite.BRICK || block.getType()==PowerUp.AMMO_UPGRADE
-			|| block.getType()==PowerUp.GRENADE || block.getType()==PowerUp.NEW_LIFE || block.getType()==PowerUp.SPEED_BOOSTER){
+		if (block.getType() == Sprite.BRICK){
 			this.blocks.remove(block);
 			System.out.println("Block: "+block.getXPos()+ "," + block.getYPos());
 			layer.removeBlock(block.getYPos()/Map.BLOCK_WIDTH,block.getXPos()/Map.BLOCK_HEIGHT);
@@ -39,7 +38,7 @@ public class DrawMap{
 		}
 	}
 
-	public void replaceBlock(Block block){
+/*	public void replaceBlock(Block block){
 		if (block.getType() == Sprite.BRICK){
 			this.blocks.remove(block);
 			Random rand = new Random();
@@ -48,5 +47,5 @@ public class DrawMap{
 			this.blocks.add(new PowerUp(block.getXPos(),block.getYPos(),Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,type));
 			layer.replaceBlock(block.getYPos()/Map.BLOCK_WIDTH,block.getXPos()/Map.BLOCK_HEIGHT,type);
 		}
-	}
+	}*/
 }

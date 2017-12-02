@@ -19,8 +19,8 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	//receives the data read from Map.txt by get DrawMap class
 	static int[][] mp = map.getMap();
 	static int playerCount;
-	static ArrayList<Tank> tanks = new ArrayList<Tank>();
-	static ArrayList<Thread> tankThreads = new ArrayList<Thread>();
+	static ArrayList<Unit> players = new ArrayList<Unit>();
+	static ArrayList<Thread> playerThreads = new ArrayList<Thread>();
 	static ArrayList<Block> blocks = map.getBlocks();
 	static int gameState = Paint.INITIALIZATION;
 	private static String server = "localhost";
@@ -112,9 +112,9 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	public Paint(int playerCount, ArrayList<Player> players){
 		Paint.playerCount = playerCount;
 		for (Player player:players){
-			this.addTank(new Tank(player.getTank(), player.getName(), player.getType()));
+			this.addUnit(new Unit(player.getUnit(), player.getName(), player.getType()));
 		}
-		this.runTankThread();
+		this.runUnitThread();
 	}
 
 
@@ -124,7 +124,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		frame.setSize(600,600);
 		frame.setResizable(false);
 		frame.setFocusable(true);
-		//frame.setIconImage((new ImageIcon ("Tank/Tank.png")).getImage());
+		//frame.setIconImage((new ImageIcon ("Unit/Unit.png")).getImage());
 		this.setBackground(Color.BLACK);		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(this);
@@ -172,15 +172,15 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 				else if (data.startsWith("NEW PLAYER")) {
 				System.out.println("GENERATE NEW TANK");
 				String[] playerInfo = data.split(" ");
-				Paint.addTank( new Tank(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[5]),Integer.parseInt(playerInfo[6]),Integer.parseInt(playerInfo[4])));
-				System.out.println("NEW PLAYER COUNT "+ Paint.tanks.size() +"/"+Paint.playerCount);
+				Paint.addUnit( new Unit(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[5]),Integer.parseInt(playerInfo[6]),Integer.parseInt(playerInfo[4])));
+				System.out.println("NEW PLAYER COUNT "+ Paint.players.size() +"/"+Paint.playerCount);
 				//System.out.println("STARTING "+ (data.startsWith("STARTING"));// && counter >= Paint.playerCount));
 				continue;
-			} else if(Paint.tanks.size() == Paint.playerCount) {
+			} else if(Paint.players.size() == Paint.playerCount) {
 				System.out.println("GENERATE BOARD");
 				frame.setVisible(true);
 				(new Thread(this)).start();
-				Paint.runTankThread();
+				Paint.runUnitThread();
 				Paint.offscreen=(BufferedImage)this.createImage(600, 600);
 				this.receiver = new Thread (new ClientReceiver(this,this.port,this.socket));
 				receiver.start();
@@ -202,18 +202,18 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		
 	}
 
-//Tank Stuffs
-	public static void addTank(Tank tank){
-		Paint.tanks.add(tank);
-		Paint.tankThreads.add(new Thread(tank));
+//Unit Stuffs
+	public static void addUnit(Unit player){
+		Paint.players.add(player);
+		Paint.playerThreads.add(new Thread(player));
 	}
 
-	public static ArrayList<Tank> getTanks(){
-			return tanks;
+	public static ArrayList<Unit> getUnits(){
+			return players;
 		}
 
-	public static void runTankThread(){
-		for (Thread trid: tankThreads)
+	public static void runUnitThread(){
+		for (Thread trid: playerThreads)
 			trid.start();
 	}
 
@@ -252,19 +252,25 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 			}
 		}
 
-		for(Tank tank: Paint.tanks) {
+		for(Unit player: Paint.players) {
+				
 			//Range
-			if (!tank.isAlive()|| (!tank.isVisible() && tank.getPlayer() != this.id))
+			if (!player.isAlive()|| (!player.isVisible() && player.getPlayer() != this.id))
 				continue;
 			g.setColor(Color.WHITE);
-			g.drawOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
-			// HashMap<String,Integer> weap = tank.getWeaponPos();
-			// g.drawImage(tank.getWeapon(),weap.get("x"),weap.get("y"),weap.get("r"),weap.get("r"),this);
-			tank.drawWeapon(g,this);
+			g.drawOval(player.getXPos()-player.getRange(),player.getYPos()-player.getRange(),player.getRange()*2+player.getWidth(),player.getRange()*2+player.getHeight());
+			g.setColor(player.getColor());
+
+			// HashMap<String,Integer> weap = player.getWeaponPos();
+			// g.drawImage(player.getWeapon(),weap.get("x"),weap.get("y"),weap.get("r"),weap.get("r"),this);
 			//Player
-			g.setColor(tank.getColor());
-			g.drawString(tank.getName(),tank.getXPos()-10,tank.getYPos()+30);
-			g.fillOval(tank.getXPos() ,tank.getYPos() ,tank.getWidth(),tank.getHeight());        	
+			player.drawWeapon(g,this);
+			g.drawString(player.getName(),player.getXPos()-10,player.getYPos()+30);
+
+			if (!player.isVisible() && player.getPlayer() == this.id)
+				g.drawOval(player.getXPos() ,player.getYPos() ,player.getWidth(),player.getHeight());
+			else
+				g.fillOval(player.getXPos() ,player.getYPos() ,player.getWidth(),player.getHeight());        	
 		}
 
 		for(int j=0;j<mp.length;j++) {
@@ -294,16 +300,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
     		if (object.getType() == Sprite.MISSILE && sp.get(i).getType() == Sprite.WATER)
     			continue;
     		if(sp.get(i).isVisible() && !(sp.get(i).isDead()) && (sp.get(i).canCollide())){
-    			if (object.collisionCheck((Block)sp.get(i))){
-    				if(!(object.getType() == Sprite.MISSILE) && (sp.get(i).getType()==PowerUp.AMMO_UPGRADE||sp.get(i).getType()==PowerUp.GRENADE || sp.get(i).getType()==PowerUp.NEW_LIFE || sp.get(i).getType()==PowerUp.SPEED_BOOSTER)){
-	    				((PowerUp)sp.get(i)).addEffect((Tank)object);
-	    				map.removeBlock(sp.get(i));
-	    				continue;
-	    			}else if((object.getType() == Sprite.MISSILE) && (sp.get(i).getType()==PowerUp.AMMO_UPGRADE ||sp.get(i).getType()==PowerUp.GRENADE|| sp.get(i).getType()==PowerUp.NEW_LIFE || sp.get(i).getType()==PowerUp.SPEED_BOOSTER)){
-	    				object.collide((Block)sp.get(i));
-	    				map.removeBlock(sp.get(i));
-	    				continue;
-	    			}
+    			if (object.collisionCheck((Block)sp.get(i))){	
     				object.collide((Block)sp.get(i));
 	    		}
 	    	}
@@ -325,18 +322,18 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 			if (Paint.gameState == RESULTS){
 				//int rank = 1;
-				for (Tank tank:Paint.tanks){
-					System.out.println(tank.getName()+"\nStats:\n"+(tank.getLife()>0?("LIVES LEFT: "+tank.getLife()):("KILLED IN ACTION"))+" SCORED "+ tank.getScore()+" KILLS");
+				for (Unit player:Paint.players){
+					System.out.println(player.getName()+"\nStats:\n"+(player.getLife()>0?("LIVES LEFT: "+player.getLife()):("KILLED IN ACTION"))+" SCORED "+ player.getScore()+" KILLS");
 				}
 				break;
 			}
 
 
-			if (Paint.tanks.get(this.id).getLife() == 0){
+			if (Paint.players.get(this.id).getLife() == 0){
 				Paint.send("PLAYER OUT "+this.id);
 				Paint.gameState = Paint.KILLED;
 			}
-			else if (Paint.tanks.get(this.id).isDead()){
+			else if (Paint.players.get(this.id).isDead()){
 				Paint.send("PLAYER DIED "+this.id);
 			}
 

@@ -73,13 +73,13 @@ public class Server implements Runnable{
 
 	private void initGame(){
 		for(Player player : players){		
-			send(player,("GENERATING "+playerCount+" "+player.getTank()));	
+			send(player,("GENERATING "+playerCount+" "+player.getUnit()));	
 		}
 		
 		game = new Paint(playerCount, players);
-		for(Tank tank : game.getTanks()){
+		for(Unit player : game.getUnits()){
 			// NEW PLAYER NAME TANKID X Y
-			broadcast("NEW "+players.get(tank.getPlayer()).toString()+" "+tank.getXPos()+" "+tank.getYPos());
+			broadcast("NEW "+players.get(player.getPlayer()).toString()+" "+player.getXPos()+" "+player.getYPos());
 		}
 		broadcast("STARTING");
 	}
@@ -87,37 +87,37 @@ public class Server implements Runnable{
 	private void updateState(String data){
 		if (!data.equals("") && !data.startsWith("PLAYER DIED")){
 			String[] dataStream = data.split(" ");
-			int tankid = Integer.parseInt(dataStream[1]);
+			int playerid = Integer.parseInt(dataStream[1]);
 			int keyid = Integer.parseInt(dataStream[3]);
-			Tank tank = game.tanks.get(tankid);
+			Unit player = game.players.get(playerid);
 			//System.out.println("IT RECIEVED!!");
 			if (dataStream[2].equals("SCORES")){
-				tank.addScore(keyid);
+				player.addScore(keyid);
 			//	System.out.println("IT PRESSED!!");
 			}
 			else if (dataStream[2].equals("PRESSED")){
-				tank.keyPressed(keyid,tankid);
+				player.keyPressed(keyid,playerid);
 			//	System.out.println("IT PRESSED!!");
 			}
 			else if (dataStream[2].equals("RELEASED")){
 				// System.out.println("IT RELEASED!!");
-				tank.keyReleased(keyid,tankid);
+				player.keyReleased(keyid,playerid);
 			}
 		}
 	}
 
 	private void sychronizePosition(){
-		for(Tank tank : game.getTanks()){
+		for(Unit player : game.getUnits()){
 			// NEW PLAYER NAME TANKID X Y
-			broadcast("SYNCING "+tank.toString());
+			broadcast("SYNCING "+player.toString());
 		}
 	}
 
 	private boolean checkEnd(){
 		int counter = 0;
-		for(Tank tank : game.getTanks()){
+		for(Unit player : game.getUnits()){
 			// NEW PLAYER NAME TANKID X Y
-			if (tank.isAlive())
+			if (player.isAlive())
 				counter++;
 		}
 		return counter<2;
@@ -158,15 +158,15 @@ public class Server implements Runnable{
 			else if (playerData.startsWith("PLAYER OUT")){
 
 				broadcast("KILL "+Integer.parseInt(tokens[2]));
-				game.tanks.get(Integer.parseInt(tokens[2])).kill();
+				game.players.get(Integer.parseInt(tokens[2])).kill();
 				continue;
 			}
 			else if (playerData.startsWith("PLAYER DIED")){
 				int id = Integer.parseInt(tokens[2]);
-				Tank tank = game.getTanks().get(id);
-				tank.randCoor();
-				tank.spawn(tank.getXPos(),tank.getYPos());
-				broadcast("RESPAWN "+id+" "+tank.getXPos()+" "+tank.getYPos());
+				Unit player = game.getUnits().get(id);
+				player.randCoor();
+				player.spawn(player.getXPos(),player.getYPos());
+				broadcast("RESPAWN "+id+" "+player.getXPos()+" "+player.getYPos());
 			}
 
 			else if (playerData.startsWith("PLAYER")){
