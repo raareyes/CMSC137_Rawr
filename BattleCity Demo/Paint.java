@@ -8,6 +8,8 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Random;
+import java.util.HashMap;
+import java.awt.image.BufferedImage;
 
 
 public class Paint extends JPanel implements Runnable, KeyListener {
@@ -24,6 +26,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	private static String server = "localhost";
 	private static DatagramSocket socket;
 	private static int serverPort;
+	private static BufferedImage offscreen;
 
 	//client attributes
 	private ArrayList<Integer> pressedKeys = new ArrayList<Integer>();
@@ -64,21 +67,22 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	public Paint(String server, String name,int serverPort, int type) {
 
 		
-		frame = new JFrame("Ninjas and Samurai");
+		frame = new JFrame("Shinobi & Bushido");
 		frame.setSize(600,600);
 		//when we add this option to true (resizable), 
 		//we should also be able to dynamically change the size of the window
 		frame.setResizable(false);					
 		frame.setFocusable(true);
-		frame.setIconImage((new ImageIcon ("Tank/Tank.png")).getImage());
+		frame.setIconImage((new ImageIcon ("Weapons/Sword/WeaponDown.png")).getImage());
 		this.setBackground(Color.BLACK);		
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(this);
 		frame.getContentPane().add(this);
 		this.type = type;
 
+    //merged conflict here
 		frame.setGlassPane(new Chat(0, 1234, server));
-
+    
 		this.server = server;
 		this.name = name;
 		this.serverPort = serverPort;
@@ -116,7 +120,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 	//Creating an Empty Working Paint
 	public Paint() {
-		frame = new JFrame("Ninjas and Samurai");
+		frame = new JFrame("Shinobi & Bushido");
 		frame.setSize(600,600);
 		frame.setResizable(false);
 		frame.setFocusable(true);
@@ -177,6 +181,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 				frame.setVisible(true);
 				(new Thread(this)).start();
 				Paint.runTankThread();
+				Paint.offscreen=(BufferedImage)this.createImage(600, 600);
 				this.receiver = new Thread (new ClientReceiver(this,this.port,this.socket));
 				receiver.start();
 				Paint.gameState = Paint.GAMEON;
@@ -221,7 +226,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	private void setDrawing(Graphics g){
 		int x, y;
 		int h = Map.BOARD_HEIGHT/Map.BLOCK_HEIGHT, w = Map.BOARD_WIDTH/Map.BLOCK_WIDTH;
-		
+		g.clearRect(0, 0, 600,600);
 		for(int j=0;j<mp.length;j++){
 			y = j%w;
 			for(int i=0;i<mp[0].length;i++){
@@ -236,7 +241,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 								// if ((x+y)%2 == 1)
 								// 	g.drawImage(this.timer<5?Paint.WATERICON1:Paint.WATERICON2,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 								// else
-									g.drawImage(this.timer<5?Paint.WATERICON2:Paint.WATERICON1,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
+									g.drawImage(this.timer<25?Paint.WATERICON2:Paint.WATERICON1,x*Map.BLOCK_HEIGHT,y*Map.BLOCK_WIDTH,Map.BLOCK_HEIGHT,Map.BLOCK_WIDTH,this);
 
 								break;
 						case Sprite.METAL:
@@ -249,10 +254,13 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 		for(Tank tank: Paint.tanks) {
 			//Range
-			if (!tank.isAlive()|| !tank.isVisible())
+			if (!tank.isAlive()|| (!tank.isVisible() && tank.getPlayer() != this.id))
 				continue;
 			g.setColor(Color.WHITE);
 			g.drawOval(tank.getXPos()-tank.getRange(),tank.getYPos()-tank.getRange(),tank.getRange()*2+tank.getWidth(),tank.getRange()*2+tank.getHeight());
+			// HashMap<String,Integer> weap = tank.getWeaponPos();
+			// g.drawImage(tank.getWeapon(),weap.get("x"),weap.get("y"),weap.get("r"),weap.get("r"),this);
+			tank.drawWeapon(g,this);
 			//Player
 			g.setColor(tank.getColor());
 			g.drawString(tank.getName(),tank.getXPos()-10,tank.getYPos()+30);
@@ -276,8 +284,8 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	 * enables the drawing of component in the Paint class
 	*/
 	public void paintComponent(Graphics g){
-		super.paintComponent(g);
-		setDrawing(g);
+		//super.paintComponent(g);
+		g.drawImage(Paint.offscreen, 0, 0, null);
 	}
 //Useless for now, this kills blocks
 	public static void updateBlock(Sprite object){
@@ -310,7 +318,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		System.out.println("BOARD IS RUNNING");
 		while(true){
 			try{
-				Thread.sleep(100);
+				Thread.sleep(20);
 			}catch(Exception e){
 				System.out.println(e.getMessage());
 			}
@@ -333,9 +341,9 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 			}
 
 
-
-				this.timer = this.timer != 10? this.timer+1: 1;
-				this.repaint();
+			this.timer = this.timer != 50? this.timer+1: 1;
+			setDrawing(Paint.offscreen.getGraphics());
+			this.repaint();
 		}
 	}
 

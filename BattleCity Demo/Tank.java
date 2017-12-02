@@ -6,6 +6,7 @@ import javax.swing.ImageIcon;
 import java.util.ArrayList;
 import javax.sound.sampled.*;
 import java.util.Random;
+import java.util.HashMap;
 import java.lang.Math;
 
 public class Tank extends Sprite{
@@ -15,7 +16,7 @@ public class Tank extends Sprite{
 	private int lastKey;
 	private int player;
 	private int cooldown;
-	private boolean skillReady = true;
+	private CooldownTimer skillTimer;
 	private int reloadDelay;
 	private int reloaded;
 	private int animationState;
@@ -26,6 +27,7 @@ public class Tank extends Sprite{
 	private String name;
 	private Color color;
 	private int playerType;
+	private Weapon weapon; 
 	public JLabel lives = new JLabel();
 
 //Constructors
@@ -41,16 +43,21 @@ public class Tank extends Sprite{
 		this.color = new Color(x%255,y%255,Math.abs(x-y)%255);
 		this.setCoor(x,y);
 		this.lastKey = KeyEvent.VK_DOWN;
+		this.direction = 's';
 		this.playerType = playerType;
 		if (this.playerType == Ninja.TYPE){
 			this.range = Ninja.RANGE;
 			this.cooldown = Ninja.CD;
+			this.skillTimer = new CooldownTimer(Ninja.CD,Ninja.CD/2,this);
+			this.weapon = new Weapon(Ninja.WEAPON + Weapon.WD,15,15);
 			super.setSpeed(Ninja.SPEED);
 			super.origSpeed(Ninja.SPEED);
 		}
 		else if(this.playerType == Samurai.TYPE){
 			this.range = Samurai.RANGE;
 			this.cooldown = Samurai.CD;
+			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/100,this);
+			this.weapon = new Weapon(Samurai.WEAPON + Weapon.WD,15,40);
 			super.setSpeed(Samurai.SPEED);
 			super.origSpeed(Samurai.SPEED);
 		}
@@ -68,16 +75,21 @@ public class Tank extends Sprite{
 		this.name = name;
 		this.color = new Color(super.getXPos()%255,super.getYPos()%255,Math.abs(super.getXPos()-super.getYPos())%255);
 		this.lastKey = KeyEvent.VK_DOWN;
+		this.direction = 's';
 		this.playerType = playerType;
 		if (this.playerType == Ninja.TYPE){
 			this.range = Ninja.RANGE;
 			this.cooldown = Ninja.CD;
+			this.skillTimer = new CooldownTimer(Ninja.CD,Ninja.CD/2,this);
+			this.weapon = new Weapon(Ninja.WEAPON + Weapon.WD,15,14);
 			super.setSpeed(Ninja.SPEED);
 			super.origSpeed(Ninja.SPEED);
 		}
 		else if(this.playerType == Samurai.TYPE){
 			this.range = Samurai.RANGE;
 			this.cooldown = Samurai.CD;
+			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/100,this);
+			this.weapon = new Weapon(Samurai.WEAPON + Weapon.WD,15,40);
 			super.setSpeed(Samurai.SPEED);
 			super.origSpeed(Samurai.SPEED);
 		}
@@ -157,6 +169,23 @@ public class Tank extends Sprite{
 	}
 
 	//animation
+	public void drawWeapon(Graphics g, JPanel paint){
+		switch (this.direction){
+			case 'w':
+				g.drawImage(this.weapon.getImage(),this.getXPos(), this.getYPos()-this.weapon.getHeight(), this.weapon.getWidth(), this.weapon.getHeight(), paint);
+			break;
+			case 'a':
+				g.drawImage(this.weapon.getImage(),this.getXPos()-this.weapon.getHeight(), this.getYPos(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
+			break;
+			case 's':
+				g.drawImage(this.weapon.getImage(),this.getXPos(), this.getYPos()+this.getHeight(), this.weapon.getWidth(), this.weapon.getHeight(), paint);
+			break;
+			case 'd':
+				g.drawImage(this.weapon.getImage(),this.getXPos()+this.getWidth(), this.getYPos(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
+			break;
+		}
+	}
+
 	public void changeImageState(){
 		/*switch (this.direction){
 			case 'w':
@@ -205,14 +234,14 @@ public class Tank extends Sprite{
 		            this.setDirection(-1,0);
    		            this.lastKey = key;
 	            	this.direction = 'a';
-	            	this.changeImageState();
+	            	this.weapon.setImage(Samurai.WEAPON + Weapon.WL);
 		        }
 
 		        else if ((key == KeyEvent.VK_RIGHT) || (key == KeyEvent.VK_D)) {
 		            this.setDirection(1,0);
 		            this.lastKey = key;
 	            	this.direction = 'd';
-	            	this.changeImageState();
+	            	this.weapon.setImage(Samurai.WEAPON + Weapon.WR);
 	           
 		        }
 
@@ -220,15 +249,17 @@ public class Tank extends Sprite{
 		            this.setDirection(0,-1);
 		            this.lastKey = key;
 	            	this.direction = 'w';
-	            	this.changeImageState();
+	            	this.weapon.setImage(Samurai.WEAPON + Weapon.WU);
 		        }
 
 		        else if ((key == KeyEvent.VK_DOWN) || (key == KeyEvent.VK_S)) {
 		            this.setDirection(0,1);
 		            this.lastKey = key;
 	            	this.direction = 's';
+	            	this.weapon.setImage(Samurai.WEAPON + Weapon.WD);
 	        	}
 
+        	this.changeImageState();	
     			
 	}
 
@@ -263,7 +294,8 @@ public class Tank extends Sprite{
 			if (this.slash(tank)){
     			tank.addDamage(this.damage);
     			if (tank.isDead()){
-    				Paint.send("PLAYER "+this.player+" SCORES "+1);
+    				this.score += 1;
+    				//Paint.send("PLAYER "+this.player+" SCORES "+1);
     			}
 			}
 		}
@@ -300,26 +332,7 @@ public class Tank extends Sprite{
 	}
 
 	public void skill(){
-		if (!skillReady)
-			return;
-		skillReady = false;
-		if (this.playerType == Ninja.TYPE){
-			super.setVisibility(false);
-			for (int i=0;i!=this.cooldown*10;i++);
-			super.setVisibility(true);
-		}
-		else if (this.playerType == Samurai.TYPE){
-			int counter = 50;
-			super.setSpeed(5);
-			while(counter > 0){
-				for (int i=0;i!=100;i++);
-				counter --;
-			}
-			super.resetSpeed();
-		}
-		
-		for (int i=0;i!=this.cooldown*10;i++);
-			this.skillReady = true;
+		this.skillTimer.activate();
 	}
 
 	//Player thread
@@ -442,6 +455,10 @@ public class Tank extends Sprite{
 		return this.life;
 	}
 
+	public int getPlayerType(){
+		return this.playerType;
+	}
+
 	public void setLife(int life){
 		this.life = life;
 	}
@@ -472,6 +489,10 @@ public class Tank extends Sprite{
 
 	public void reload(){
 		this.reloaded = reloaded == 0? 0:reloaded-1;
+	}
+
+	public Weapon getWeapon(){
+		return this.weapon;
 	}
 
 	public String toString(){
