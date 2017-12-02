@@ -27,10 +27,10 @@ public class Server implements Runnable{
 	Thread t = new Thread(this);
 	public Server(String name,int numPlayers,int port){
 		try {
-            serverSocket = new DatagramSocket(3000);
+            serverSocket = new DatagramSocket(port);
 			serverSocket.setSoTimeout(100);
 		} catch (IOException e) {
-            System.err.println("Could not listen on port: "+3000);
+            System.err.println("Could not listen on port: "+port);
             System.exit(-1);
 		}catch(Exception e){}
 		//Create the game state
