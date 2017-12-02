@@ -79,6 +79,10 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 		frame.addKeyListener(this);
 		frame.getContentPane().add(this);
 		this.type = type;
+
+    //merged conflict here
+		frame.setGlassPane(new Chat(0, 1234, server));
+    
 		this.server = server;
 		this.name = name;
 		this.serverPort = serverPort;
@@ -347,6 +351,15 @@ public class Paint extends JPanel implements Runnable, KeyListener {
    * Key listeners	
 	*/
 	public void keyPressed(KeyEvent key){
+
+		if(key.getKeyCode() == KeyEvent.VK_ESCAPE){
+			frame.getGlassPane().setVisible(false);
+		}
+		if(key.getKeyCode() == KeyEvent.VK_ENTER){
+			frame.getGlassPane().setVisible(true);
+			frame.getGlassPane().requestFocusInWindow();
+		}
+		
 		//stops sending redundant commands
 		if (pressedKeys.size() != 0 && pressedKeys.contains(key.getKeyCode()))
 			return;
