@@ -109,10 +109,10 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 	}
 
 	//Using Paint for Server
-	public Paint(int playerCount, ArrayList<Player> players){
+	public Paint(int playerCount, ArrayList<Player> players, int lives){
 		Paint.playerCount = playerCount;
 		for (Player player:players){
-			this.addUnit(new Unit(player.getUnit(), player.getName(), player.getType()));
+			this.addUnit(new Unit(player.getUnit(), player.getName(), player.getType(), lives));
 		}
 		this.runUnitThread();
 	}
@@ -168,11 +168,11 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 				this.id = (Integer)Integer.parseInt(data.split(" ")[2]);
 				continue;
 			} 
-				// NEW PLAYER NAME TANKID TYPE X Y
+				// NEW PLAYER NAME TANKID TYPE X Y LIVES
 				else if (data.startsWith("NEW PLAYER")) {
 				System.out.println("GENERATE NEW TANK");
 				String[] playerInfo = data.split(" ");
-				Paint.addUnit( new Unit(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[5]),Integer.parseInt(playerInfo[6]),Integer.parseInt(playerInfo[4])));
+				Paint.addUnit( new Unit(Integer.parseInt(playerInfo[3]),playerInfo[2],Integer.parseInt(playerInfo[5]),Integer.parseInt(playerInfo[6]),Integer.parseInt(playerInfo[4]),Integer.parseInt(playerInfo[7])));
 				System.out.println("NEW PLAYER COUNT "+ Paint.players.size() +"/"+Paint.playerCount);
 				//System.out.println("STARTING "+ (data.startsWith("STARTING"));// && counter >= Paint.playerCount));
 				continue;

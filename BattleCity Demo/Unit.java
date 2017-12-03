@@ -41,12 +41,12 @@ public class Unit extends Sprite{
 
 //Constructors
 	//For Client
-	public Unit(int player,String name, int x, int y,int playerType){
+	public Unit(int player,String name, int x, int y,int playerType, int life){
 		super(x,y,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
 		this.player = player;
 		this.setCollision(true);
-		this.life = 3;
+		this.life = life;
 		this.spawn(x,y);
 		this.name = name;
 		this.color = new Color(x%255,y%255,Math.abs(x-y)%255);
@@ -73,13 +73,13 @@ public class Unit extends Sprite{
 		}
 	}
 	//For Server
-	public Unit(int player,String name,int playerType){
+	public Unit(int player,String name,int playerType,int life){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
 		this.range = 15;
 		this.player = player;
 		this.setCollision(true);
-		this.life = 3;
+		this.life = life;
 		this.randCoor();
 		this.spawn(super.getXPos(),super.getYPos());
 		this.name = name;
