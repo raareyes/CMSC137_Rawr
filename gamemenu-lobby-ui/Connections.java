@@ -5,6 +5,9 @@ import java.awt.event.*;
 
 /* 
  * This class should listen to the variable that holds the players
+ * TODO: Do an enchancement on the data structures used. DS used might not be 
+ * the most appropriate
+ * TODO: Should have a listener to a variable that holds the data
 */
 public class Connections extends JPanel {
   private boolean DEBUG = false;
