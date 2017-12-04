@@ -18,15 +18,19 @@ public class Weapon{
 	private Image image;
 	private int width;
 	private int height;
+	private int xPos;
+	private int yPos;
 	private int origWidth;
 	private int origHeight;
 
-	public Weapon(String image,int width,int height){
+	public Weapon(String image,int width,int height, int x, int y){
 		this.image = new ImageIcon(image).getImage();
 		this.width = width;
 		this.height = height;
 		this.origWidth = width;
 		this.origHeight = height;
+		this.xPos = x;
+		this.yPos = y;
 	}
 
 	public void setImage(String image){
@@ -57,5 +61,17 @@ public class Weapon{
 	public void resetDimension(){
 		this.height = this.origHeight;
 		this.width = this.origWidth;
+	}
+	public void setCoord(int x, int y){
+		this.xPos = x;
+		this.yPos = y;
+	}
+
+	public int getXPos(){
+		return this.xPos;
+	}
+
+	public int getYPos(){
+		return this.yPos;
 	}
 }

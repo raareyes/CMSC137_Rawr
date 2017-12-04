@@ -59,15 +59,15 @@ public class Unit extends Sprite{
 			this.range = Ninja.RANGE;
 			this.cooldown = Ninja.CD;
 			this.skillTimer = new CooldownTimer(Ninja.CD,Ninja.CD/2,this);
-			this.weapon = new Weapon(Ninja.WEAPON + Weapon.WD,15,15);
+			this.weapon = new Weapon(Ninja.WEAPON + Weapon.WD,15,14,this.getXPos()-15,this.getYPos()+(this.getHeight()/2) );
 			super.setSpeed(Ninja.SPEED);
 			super.origSpeed(Ninja.SPEED);
 		}
 		else if(this.playerType == Samurai.TYPE){
 			this.range = Samurai.RANGE;
 			this.cooldown = Samurai.CD;
-			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/100,this);
-			this.weapon = new Weapon(Samurai.WEAPON + Weapon.WD,15,40);
+			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/8,this);
+			this.weapon = new Weapon(Samurai.WEAPON + Weapon.WD,15,40,this.getXPos()-15,this.getYPos()+(this.getHeight()/2) );
 			super.setSpeed(Samurai.SPEED);
 			super.origSpeed(Samurai.SPEED);
 		}
@@ -91,15 +91,15 @@ public class Unit extends Sprite{
 			this.range = Ninja.RANGE;
 			this.cooldown = Ninja.CD;
 			this.skillTimer = new CooldownTimer(Ninja.CD,Ninja.CD/2,this);
-			this.weapon = new Weapon(Ninja.WEAPON + Weapon.WD,15,14);
+			this.weapon = new Weapon(Ninja.WEAPON + Weapon.WD,15,14,this.getXPos()-15,this.getYPos()+(this.getHeight()/2) );
 			super.setSpeed(Ninja.SPEED);
 			super.origSpeed(Ninja.SPEED);
 		}
 		else if(this.playerType == Samurai.TYPE){
 			this.range = Samurai.RANGE;
 			this.cooldown = Samurai.CD;
-			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/100,this);
-			this.weapon = new Weapon(Samurai.WEAPON + Weapon.WD,15,40);
+			this.skillTimer = new CooldownTimer(Samurai.CD,Samurai.CD/8,this);
+			this.weapon = new Weapon(Samurai.WEAPON + Weapon.WD,15,40,this.getXPos()-15,this.getYPos()+(this.getHeight()/2) );
 			super.setSpeed(Samurai.SPEED);
 			super.origSpeed(Samurai.SPEED);
 		}
@@ -184,28 +184,28 @@ public class Unit extends Sprite{
 
 		switch (this.direction){
 			case 'w':
-				g.drawImage(this.weapon.getImage(),this.getXPos()+this.getWidth()-this.weapon.getWidth()/2,(5*changingHands)+this.getYPos()+(this.getHeight()/4)-(this.weapon.getHeight()) , this.weapon.getWidth(), this.weapon.getHeight(), paint);
+				g.drawImage(this.weapon.getImage(),this.weapon.getXPos(),(-5*changingHands)+this.weapon.getYPos(), this.weapon.getWidth(), this.weapon.getHeight(), paint);
 				//hands
 				g.fillOval(this.getXPos()+this.getWidth(),(5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);        	
 				g.fillOval(this.getXPos()-this.getWidth()/2,(-5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 			case 'a':
-				g.drawImage(this.weapon.getImage(),(-5*changingHands)+this.getXPos()+this.getWidth()/4-this.weapon.getHeight(),this.getYPos()-this.weapon.getWidth()/2, this.weapon.getHeight(), this.weapon.getWidth(), paint);
+				g.drawImage(this.weapon.getImage(),(-5*changingHands)+this.weapon.getXPos(),this.weapon.getYPos(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
 				//hands
-				g.fillOval((5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()+this.getHeight() ,this.getWidth()/2,this.getHeight()/2);        	
-				g.fillOval((-5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()-this.getHeight()/2 ,this.getWidth()/2,this.getHeight()/2);
+				g.fillOval((-5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()+this.getHeight() ,this.getWidth()/2,this.getHeight()/2);        	
+				g.fillOval((5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()-this.getHeight()/2 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 			case 's':
-				g.drawImage(this.weapon.getImage(),this.getXPos()-this.weapon.getWidth(),(-5*changingHands)+this.getYPos()+(this.getHeight()/2) , this.weapon.getWidth(), this.weapon.getHeight(), paint);
+				g.drawImage(this.weapon.getImage(),this.weapon.getXPos(),(5*changingHands)+this.weapon.getYPos(), this.weapon.getWidth(), this.weapon.getHeight(), paint);
 				//hands
 				g.fillOval(this.getXPos()+this.getWidth(),(5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);        	
 				g.fillOval(this.getXPos()-this.getWidth()/2,(-5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 			case 'd':
-				g.drawImage(this.weapon.getImage(),(5*changingHands)+this.getXPos()+this.getWidth()/4+this.weapon.getWidth()/2,this.getYPos()+this.getHeight(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
+				g.drawImage(this.weapon.getImage(),(5*changingHands)+this.weapon.getXPos(),this.weapon.getYPos(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
 				//hands
-				g.fillOval((5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()+this.getHeight() ,this.getWidth()/2,this.getHeight()/2);        	
-				g.fillOval((-5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()-this.getHeight()/2 ,this.getWidth()/2,this.getHeight()/2);
+				g.fillOval((-5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()+this.getHeight() ,this.getWidth()/2,this.getHeight()/2);        	
+				g.fillOval((5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()-this.getHeight()/2 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 		}
 	}
@@ -214,18 +214,21 @@ public class Unit extends Sprite{
 		String type = "";
 		String state = "";
 		String direc = "";
+		int slashTime = 0;
 		if (this.playerType == Ninja.TYPE){
 			type = Ninja.WEAPON;
+			slashTime = 8;
 		}
 		else if(this.playerType == Samurai.TYPE){
 			type = Samurai.WEAPON;
+			slashTime = 4;
 		}
 
-		if (this.reloaded == 0){
+		if (this.reloaded <= (50-(2*slashTime))){
 			state = "Weapon";
 			this.weapon.resetDimension();
 		}
-		else if (this.reloaded <= 25){
+		else if (this.reloaded <= (50-slashTime)){
 			state = "Attack2";
 			if (this.playerType == Ninja.TYPE){
 				this.weapon.setHeight(25);
@@ -251,15 +254,47 @@ public class Unit extends Sprite{
 		switch (this.direction){
 			case 'w':
 				direc = "Up";
+				if (state == "Weapon")
+					this.weapon.setCoord(this.getXPos()-this.weapon.getWidth()/2,this.getYPos()+(this.getHeight()/4)-(this.weapon.getHeight()));
+				else if (state == "Attack2")
+					this.weapon.setCoord(this.getXPos()-this.weapon.getWidth()/4,this.getYPos()+(this.getHeight()/4)-(this.weapon.getHeight()));
+				else if (state == "Attack1")
+					this.weapon.setCoord(this.getXPos(),this.getYPos()+(this.getHeight()/4)-(this.weapon.getHeight()));
 			break;
 			case 'a':
 				direc = "Left";
+				if (state == "Weapon")
+					this.weapon.setCoord(this.getXPos()+this.getWidth()/4-this.weapon.getHeight(),this.getYPos()+this.getHeight()-this.weapon.getWidth()/2);
+				else if (state == "Attack2")
+					this.weapon.setCoord(this.getXPos()+this.getWidth()/4-this.weapon.getHeight(),this.getYPos()+this.getHeight()/3-this.weapon.getWidth()/2);
+				else if (state == "Attack1")
+					this.weapon.setCoord(this.getXPos()+this.getWidth()/4-this.weapon.getHeight(),this.getYPos()-this.weapon.getWidth()/2);
 			break;
 			case 's':
 				direc = "Down";
+				if (state == "Weapon")
+					this.weapon.setCoord(this.getXPos()+this.getWidth()/4+this.weapon.getWidth()/2,this.getYPos()+(this.getHeight()/2));
+				else if (state == "Attack2"){
+					if (this.playerType == Ninja.TYPE)
+						this.weapon.setCoord(this.getXPos()+(this.getWidth()/3)+(this.weapon.getWidth()/4),this.getYPos()+(this.getHeight()/2));
+					else if (this.playerType == Samurai.TYPE)
+						this.weapon.setCoord(this.getXPos()+(this.getWidth()/3)-(this.weapon.getWidth()/2),this.getYPos()+(this.getHeight()/2));
+				}
+				else if (state == "Attack1")
+					this.weapon.setCoord(this.getXPos()+this.getWidth()/4-(this.weapon.getWidth()/2),this.getYPos()+(this.getHeight()/2));
 			break;
 			case 'd':
 				direc = "Right";
+				if (state == "Weapon")
+					this.weapon.setCoord(this.getXPos()+this.getWidth()/4+this.getWidth()/2,this.getYPos()-this.weapon.getWidth()/2 - 4);
+				else if (state == "Attack2"){
+					if (this.playerType == Ninja.TYPE)
+						this.weapon.setCoord(this.getXPos()+this.getWidth()/4+this.getWidth()/2,this.getYPos()-this.weapon.getWidth()/2);
+					else if (this.playerType == Samurai.TYPE)
+						this.weapon.setCoord(this.getXPos()+this.getWidth()/4+this.getWidth()/2,this.getYPos()-this.weapon.getWidth()/4);					
+				}
+				else if (state == "Attack1")
+					this.weapon.setCoord(this.getXPos()+this.getWidth()/4+this.getWidth()/2,this.getYPos()-this.weapon.getWidth()/3);
 			break;
 		}
 
@@ -364,7 +399,7 @@ public class Unit extends Sprite{
 		        else if (key == KeyEvent.VK_DOWN || key == KeyEvent.VK_S) {
 		            this.setDirection(0,0);
 	        	}
-	        	
+	        	this.animationState = 5;
 	}
 
 	//Tries to all enemies
@@ -581,6 +616,10 @@ public class Unit extends Sprite{
 
 	public void reload(){
 		this.reloaded = reloaded == 0? 0:reloaded-1;
+	}
+
+	public void unload(){
+		this.reloaded = this.reloadDelay;
 	}
 
 	public int getReloadTime(){
