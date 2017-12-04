@@ -26,7 +26,7 @@ public class Server implements Runnable{
 	int lives;
 	ArrayList<Player> players = new ArrayList<Player>();
 	Thread t = new Thread(this);
-	public Server(String name,int numPlayers,int port, int life){
+	public Server(String name,int numPlayers,int port, int lives){
 		try {
             serverSocket = new DatagramSocket(port);
 			serverSocket.setSoTimeout(100);
@@ -39,7 +39,7 @@ public class Server implements Runnable{
 		this.host = name;
 		this.numPlayers = numPlayers;
 		this.port = port;
-		this.life = life;
+		this.lives = lives;
 		//Start the game server thread
 		t.start();
 		System.out.println("Game created...");
@@ -205,7 +205,7 @@ public class Server implements Runnable{
 			System.exit(1);
 		}
 		
-		Server s = new Server(args[0],Integer.parseInt(args[1]),Integer.parseInt(args[2]),Integer.parseInt(args[3]);
+		Server s = new Server(args[0],Integer.parseInt(args[1]),Integer.parseInt(args[2]),Integer.parseInt(args[3]));
 		//new Paint("localhost",args[0],4000);
 	}
 }

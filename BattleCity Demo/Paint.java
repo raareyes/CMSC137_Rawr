@@ -59,23 +59,23 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 			System.out.println("Usage: java Paint <server-address> <name> <server-port> <Choose: 15-Ninja|25-Samurai>");
 			System.exit(1);
 		}
-		new Paint(args[0],args[1],Integer.parseInt(args[2]),Integer.parseInt(args[3]));
-		
-	}
-	//Constructors
-	//Using Paint as Client
-	public Paint(String server, String name,int serverPort, int type) {
-
-		
-		frame = new JFrame("Shinobi & Bushido");
+		JFrame frame = new JFrame("Shinobi & Bushido");;
 		frame.setSize(600,600);
 		//when we add this option to true (resizable), 
 		//we should also be able to dynamically change the size of the window
 		frame.setResizable(false);					
 		frame.setFocusable(true);
 		frame.setIconImage((new ImageIcon ("Weapons/Sword/WeaponDown.png")).getImage());
+		new Paint(args[0],args[1],Integer.parseInt(args[2]),Integer.parseInt(args[3]),frame);
+		
+	}
+	//Constructors
+	//Using Paint as Client
+	public Paint(String server, String name,int serverPort, int type, JFrame frame) {
+
+		this.frame = frame;
+		
 		this.setBackground(Color.BLACK);		
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.addKeyListener(this);
 		frame.getContentPane().add(this);
 		this.type = type;
@@ -269,7 +269,7 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 			if (!player.isVisible() && player.getPlayer() == this.id)
 				g.drawOval(player.getXPos() ,player.getYPos() ,player.getWidth(),player.getHeight());
-			else
+			else if (player.isVisible())
 				g.fillOval(player.getXPos() ,player.getYPos() ,player.getWidth(),player.getHeight());        	
 		}
 

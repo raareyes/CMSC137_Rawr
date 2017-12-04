@@ -77,7 +77,12 @@ public class GameMenu extends JPanel implements ActionListener {
     gameWindow.getContentPane().remove(this);
 
     if(e.getActionCommand() == "Create a Lobby"){
-      LobbyServer serverMenu = new LobbyServer();
+      LobbyServer serverMenu = new LobbyServer(e.getActionCommand());
+      classSelector.add(serverMenu.ninjaSelector);
+      classSelector.add(serverMenu.samuraiSelector);
+      gameWindow.getContentPane().add(serverMenu);
+    }else if(e.getActionCommand() == "Join a Lobby") {
+      LobbyServer serverMenu = new LobbyServer(e.getActionCommand());
       classSelector.add(serverMenu.ninjaSelector);
       classSelector.add(serverMenu.samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
