@@ -111,7 +111,7 @@ public class GameMenu extends JPanel implements ActionListener {
     //instantiate UDP here
     if(e.getActionCommand() == "Create a Lobby"){
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(),
-        playerName.getText(), ip.getText(), port.getText());
+        playerName.getText(), ip.getText(), port.getText(),true);
       classSelector.add(serverMenu.ninjaSelector);
       classSelector.add(serverMenu.samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
@@ -134,7 +134,7 @@ public class GameMenu extends JPanel implements ActionListener {
 
     }else if(e.getActionCommand() == "Join a Lobby") {
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(), 
-        playerName.getText(), ip.getText(), port.getText());
+        playerName.getText(), ip.getText(), port.getText(),false);
       classSelector.add(serverMenu.ninjaSelector);
       classSelector.add(serverMenu.samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
