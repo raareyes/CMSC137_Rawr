@@ -26,9 +26,10 @@ public class CooldownTimer implements Runnable{
 		}
 		//this is the skill of sumurai
 		else if (this.player.getPlayerType() == Samurai.TYPE){
-			int counter = 20;
+			int counter = 5;
 			this.player.setSpeed(5); // charging speed (speed buff)
 			while (counter > 0){	//attacks 20 times with half second difference
+				this.player.unload();
 				this.player.attack();
 				try{
 					Thread.sleep(this.skillCooldown);
