@@ -8,11 +8,11 @@ public class LobbyServer extends JPanel implements ActionListener {
   private static JLabel ipField;
   private static JLabel portField;
   private JLabel playerName;
-  public static JRadioButton ninjaSelector;
-  public static JRadioButton samuraiSelector;
+  // public static JRadioButton ninjaSelector;
+  // public static JRadioButton samuraiSelector;
   private static JComboBox<String> lives;
   private static JComboBox<String> wins;
-  private static JPanel classSelectorContainer;
+  // private static JPanel classSelectorContainer;
   private static JPanel gameSettings;
   private static JPanel chatContainer;
   private JTextField ip;
@@ -35,7 +35,7 @@ public class LobbyServer extends JPanel implements ActionListener {
     // LobbyServer.playerName = playerName;
     this.server = server;
     super.setLayout(null);
-    classSelectorContainer = new JPanel();
+    // classSelectorContainer = new JPanel();
     gameSettings = new JPanel();
     chatContainer = new JPanel();
     startGame = new JButton("Start Game!");
@@ -50,10 +50,10 @@ public class LobbyServer extends JPanel implements ActionListener {
     /* instantiate components */
 
     //class selector
-    ninjaSelector = new JRadioButton("Ninja");
-    samuraiSelector = new JRadioButton("Samurai");
-    classSelectorContainer.setBorder(BorderFactory
-      .createTitledBorder(BorderFactory.createEtchedBorder(), "Select Class"));
+    // ninjaSelector = new JRadioButton("Ninja");
+    // samuraiSelector = new JRadioButton("Samurai");
+    // classSelectorContainer.setBorder(BorderFactory
+      // .createTitledBorder(BorderFactory.createEtchedBorder(), "Select Class"));
     //game settings
     if (host){
       lives = new JComboBox<String> (new String[] { "3", "4", "5" });
@@ -64,10 +64,10 @@ public class LobbyServer extends JPanel implements ActionListener {
 
 
     //set component properties 
-    ninjaSelector.setActionCommand("Ninja");
-    samuraiSelector.setActionCommand("Samurai");
-    ninjaSelector.setPreferredSize(new Dimension(100, 20));
-    samuraiSelector.setPreferredSize(new Dimension(100, 20));
+    // ninjaSelector.setActionCommand("Ninja");
+    // samuraiSelector.setActionCommand("Samurai");
+    // ninjaSelector.setPreferredSize(new Dimension(100, 20));
+    // samuraiSelector.setPreferredSize(new Dimension(100, 20));
     if (host){
       lives.setActionCommand("lives setting");
       lives.setEditable(true);
@@ -92,8 +92,8 @@ public class LobbyServer extends JPanel implements ActionListener {
     connections.setBounds(40, 200, 350, 350);
 
     //customize JPanels
-    classSelectorContainer.setBounds(400, 95, 150, 80);
-    classSelectorContainer.setVisible(true);
+    // classSelectorContainer.setBounds(400, 95, 150, 80);
+    // classSelectorContainer.setVisible(true);
     gameSettings.setBounds(400, 200, 150, 80);
     gameSettings.setVisible(true);
     chatContainer.setBackground(Color.BLACK);
@@ -101,16 +101,16 @@ public class LobbyServer extends JPanel implements ActionListener {
     chatContainer.setVisible(true);
 
     //place components
-    classSelectorContainer.add(ninjaSelector);
-    classSelectorContainer.add(samuraiSelector);
+    // classSelectorContainer.add(ninjaSelector);
+    // classSelectorContainer.add(samuraiSelector);
     if (host){
       gameSettings.add(lives);
       gameSettings.add(wins);
     }
 
     //add action listeners
-    ninjaSelector.addActionListener(this);
-    samuraiSelector.addActionListener(this);
+    // ninjaSelector.addActionListener(this);
+    // samuraiSelector.addActionListener(this);
     if (host){
       lives.addActionListener(this);
       wins.addActionListener(this);
@@ -118,7 +118,7 @@ public class LobbyServer extends JPanel implements ActionListener {
     }
 
     // add to cosntainers
-    super.add(classSelectorContainer);
+    // super.add(classSelectorContainer);
     super.add(gameSettings);
     super.add(chatContainer);
     super.add(startGame);

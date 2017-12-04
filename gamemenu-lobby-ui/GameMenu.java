@@ -19,6 +19,9 @@ public class GameMenu extends JPanel implements ActionListener {
   private static JTextField port;
   private static Runnable runnable;
   private static Runnable runnable2;
+  private static JPanel classSelectorContainer;
+  public static JRadioButton ninjaSelector;
+  public static JRadioButton samuraiSelector;
 
   // final values
   private static final int FRAME_HEIGHT = 800;
@@ -38,7 +41,7 @@ public class GameMenu extends JPanel implements ActionListener {
     setLayout(null);
     setVisible(true);
 
-    gameWindow = new JFrame("Ninjas & Samurai");
+    gameWindow = new JFrame("Shinobi & Bushido");
     gameWindow.setSize(GameMenu.FRAME_WIDTH, GameMenu.FRAME_HEIGHT);
     gameWindow.setResizable(false);
     gameWindow.setFocusable(true);
@@ -51,6 +54,7 @@ public class GameMenu extends JPanel implements ActionListener {
 
     //initialize misc
     classSelector = new ButtonGroup();
+    classSelectorContainer = new JPanel();
 
     //initialize components
     playerName = new JTextField("Player");
@@ -59,12 +63,19 @@ public class GameMenu extends JPanel implements ActionListener {
     createLobby = new JButton("Create a Lobby");
     joinLobby = new JButton("Join a Lobby");
     help = new JButton("Help");
-    gameName = new JLabel("Ninjas & Samurai");
+    gameName = new JLabel("Shinobi & Bushido");
     playerNameLabel = new JLabel("Enter Player Name: ");
     ipLabel = new JLabel("Enter IP: ");
     portLabel = new JLabel("Enter Port: ");
+    ninjaSelector = new JRadioButton("Ninja");
+    samuraiSelector = new JRadioButton("Samurai");
 
     //place components
+    classSelectorContainer
+        .setBorder(BorderFactory.createTitledBorder(BorderFactory.
+        createEtchedBorder(), "Select Class"));
+    classSelectorContainer.setBounds(330, 395, 150, 80);
+    classSelectorContainer.setVisible(true);
     playerName.setBounds(400, 300, 150, 30);
     ip.setBounds(260, 350, 100, 30);
     port.setBounds(475, 350, 100, 30);
@@ -80,11 +91,21 @@ public class GameMenu extends JPanel implements ActionListener {
     ipLabel.setForeground(Color.WHITE);
     portLabel.setBounds(390, 350, 100, 30);
     portLabel.setForeground(Color.WHITE);
+    ninjaSelector.setActionCommand("Ninja");
+    samuraiSelector.setActionCommand("Samurai");
+    ninjaSelector.setPreferredSize(new Dimension(100, 20));
+    samuraiSelector.setPreferredSize(new Dimension(100, 20));
+
+
+    classSelectorContainer.add(ninjaSelector);
+    classSelectorContainer.add(samuraiSelector);
 
     //add actionlistener to buttons
     createLobby.addActionListener(this);
     joinLobby.addActionListener(this);
     help.addActionListener(this);
+    ninjaSelector.addActionListener(this);
+    samuraiSelector.addActionListener(this);
 
     //add components to panel
     super.add(playerName);
@@ -97,6 +118,8 @@ public class GameMenu extends JPanel implements ActionListener {
     super.add(playerNameLabel);
     super.add(ipLabel);
     super.add(portLabel);
+    super.add(classSelectorContainer);
+
 
     //add the JPanel into the JFrame
     gameWindow.getContentPane().add(this);
@@ -114,8 +137,8 @@ public class GameMenu extends JPanel implements ActionListener {
       UDPServer server = new UDPServer(playerName.getText(),99,Integer.parseInt(port.getText())+1,3);
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(),
         playerName.getText(), ip.getText(), port.getText(),true,server,null);
-      classSelector.add(serverMenu.ninjaSelector);
-      classSelector.add(serverMenu.samuraiSelector);
+      classSelector.add(ninjaSelector);
+      classSelector.add(samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
 
       int tcpPort = Integer.parseInt(port.getText());
@@ -145,8 +168,8 @@ public class GameMenu extends JPanel implements ActionListener {
       frame.setIconImage((new ImageIcon ("Weapons/Sword/WeaponDown.png")).getImage());
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(), 
         playerName.getText(), ip.getText(), port.getText(),false,null,new Paint(args[0],args[1],Integer.parseInt(args[2]),Integer.parseInt(args[3]),frame));
-      classSelector.add(serverMenu.ninjaSelector);
-      classSelector.add(serverMenu.samuraiSelector);
+      classSelector.add(ninjaSelector);
+      classSelector.add(samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
 
       int tcpPort = Integer.parseInt(port.getText());
