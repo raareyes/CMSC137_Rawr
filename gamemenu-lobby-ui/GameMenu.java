@@ -111,8 +111,9 @@ public class GameMenu extends JPanel implements ActionListener {
 
     //instantiate UDP here
     if(e.getActionCommand() == "Create a Lobby"){
+      UDPServer server = new UDPServer(playerName.getText(),99,Integer.parseInt(port.getText())+1,3);
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(),
-        playerName.getText(), ip.getText(), port.getText(),true);
+        playerName.getText(), ip.getText(), port.getText(),true,server,null);
       classSelector.add(serverMenu.ninjaSelector);
       classSelector.add(serverMenu.samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
@@ -130,27 +131,20 @@ public class GameMenu extends JPanel implements ActionListener {
         }
       };
 
-      Thread tcpServerthread = new Thread(runnable);
-      tcpServerthread.start();
-
-      Client chatClient = new Client(ip.getText(), tcpPort, playerName.getText());
-
-      runnable2 = new Runnable(){
-      
-        @Override
-        public void run() {
-          try {
-            chatClient.run();
-          } catch(Exception event) {}
-        }
-      };
-
-      Thread tcpClientThread = new Thread(runnable2);
-      tcpClientThread.start();
+      Thread tcp = new Thread(runnable);
+      tcp.start();
 
     }else if(e.getActionCommand() == "Join a Lobby") {
+      String[] args = {ip.getText(),playerName.getText(),(Integer.parseInt(port.getText())+1)+"", 15+""};
+      JFrame frame = new JFrame("Shinobi & Bushido");;
+      frame.setSize(600,600);
+      //when we add this option to true (resizable), 
+      //we should also be able to dynamically change the size of the window
+      frame.setResizable(false);          
+      frame.setFocusable(true);
+      frame.setIconImage((new ImageIcon ("Weapons/Sword/WeaponDown.png")).getImage());
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(), 
-        playerName.getText(), ip.getText(), port.getText(),false);
+        playerName.getText(), ip.getText(), port.getText(),false,null,new Paint(args[0],args[1],Integer.parseInt(args[2]),Integer.parseInt(args[3]),frame));
       classSelector.add(serverMenu.ninjaSelector);
       classSelector.add(serverMenu.samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
