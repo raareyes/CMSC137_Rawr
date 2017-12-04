@@ -1,3 +1,5 @@
+
+import java.io.IOException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -151,9 +153,10 @@ public class GameMenu extends JPanel implements ActionListener {
 
     //instantiate UDP here
     if(e.getActionCommand() == "Create a Lobby"){
+      try {
       UDPServer server = new UDPServer(playerName.getText(),99,Integer.parseInt(port.getText())+1,3);
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(),
-        playerName.getText(), ip.getText(), port.getText(),true,server,null);
+        playerName.getText(), InetAddress.getLocalHost().getHostAddress().toString(), port.getText(),true,server,null);
       classSelector.add(ninjaSelector);
       classSelector.add(samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
@@ -173,7 +176,9 @@ public class GameMenu extends JPanel implements ActionListener {
 
       Thread tcp = new Thread(runnable);
       tcp.start();
-
+      }
+      catch(IOException j) {}
+      catch(Exception l){}
     }else if(e.getActionCommand() == "Join Game") {
       String[] args = {ip.getText(),playerName.getText(),(Integer.parseInt(port.getText())+1)+"", GameMenu.type+""};
       JFrame frame = new JFrame("Shinobi & Bushido");;
