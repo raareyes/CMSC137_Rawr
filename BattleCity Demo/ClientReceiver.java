@@ -54,37 +54,37 @@ public class ClientReceiver implements Runnable{
 				break;
 			}
 			else if (data.startsWith("KILL")){	//a player was killed
-				Paint.tanks.get(Integer.parseInt(dataStream[1])).kill();
+				Paint.players.get(Integer.parseInt(dataStream[1])).kill();
 			}
 			else if (data.startsWith("SYNCING PLAYER")){
-				int tankid = Integer.parseInt(dataStream[2]);
+				int playerid = Integer.parseInt(dataStream[2]);
 				int x = Integer.parseInt(dataStream[3]);
 				int y = Integer.parseInt(dataStream[4]);
-				Paint.tanks.get(tankid).setCoor(x,y);
+				Paint.players.get(playerid).setCoor(x,y);
 			}
 			else if (!data.equals("") && !data.startsWith("PLAYER OUT")){ //a player is out of the game
-				int tankid = Integer.parseInt(dataStream[1]);
+				int playerid = Integer.parseInt(dataStream[1]);
 				if (data.startsWith("RESPAWN")){ //a player respawns a new character
-					Tank tank = Paint.tanks.get(tankid);
-					tank.spawn(Integer.parseInt(dataStream[2]),Integer.parseInt(dataStream[3]));
-					tank.setLife(tank.getLife()-1);
+					Unit player = Paint.players.get(playerid);
+					player.spawn(Integer.parseInt(dataStream[2]),Integer.parseInt(dataStream[3]));
+					player.setLife(player.getLife()-1);
 				}
 				int keyid = Integer.parseInt(dataStream[3]);
-				Tank tank = Paint.tanks.get(tankid);
+				Unit player = Paint.players.get(playerid);
 				// System.out.println("IT RECIEVED!!");
 				/*if (!((keyid == KeyEvent.VK_E) || (keyid == KeyEvent.VK_SPACE)))
 	        		continue;*/
 	        	if (dataStream[2].equals("SCORES")){ //this player scores
-					tank.addScore(keyid);
+					player.addScore(keyid);
 					// System.out.println("IT SCORED!!");
 				}
 				else if (dataStream[2].equals("PRESSED")){ // a player pressed a new key
-					tank.keyPressed(keyid,tankid);
+					player.keyPressed(keyid,playerid);
 					// System.out.println("IT PRESSED!!");
 				}
 				else if (dataStream[2].equals("RELEASED")){ // a player releases a key
 					// System.out.println("IT RELEASED!!");
-					tank.keyReleased(keyid,tankid);
+					player.keyReleased(keyid,playerid);
 				}
 			}
 		}

@@ -9,9 +9,9 @@ import java.util.Random;
 import java.util.HashMap;
 import java.lang.Math;
 
-public class Tank extends Sprite{
+public class Unit extends Sprite{
 	public static final int HEIGHT=15, WIDTH=15;
-	private Character direction;
+	private Unit direction;
 	private boolean alive = true;
 	private int lastKey;
 	private int player;
@@ -32,7 +32,7 @@ public class Tank extends Sprite{
 
 //Constructors
 	//For Client
-	public Tank(int player,String name, int x, int y,int playerType){
+	public Unit(int player,String name, int x, int y,int playerType){
 		super(x,y,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
 		this.player = player;
@@ -63,7 +63,7 @@ public class Tank extends Sprite{
 		}
 	}
 	//For Server
-	public Tank(int player,String name,int playerType){
+	public Unit(int player,String name,int playerType){
 		super(player,player,HEIGHT,WIDTH,Sprite.TANK);
 		this.score = 0;
 		this.range = 15;
@@ -93,16 +93,16 @@ public class Tank extends Sprite{
 			super.setSpeed(Samurai.SPEED);
 			super.origSpeed(Samurai.SPEED);
 		}
-		//this.setImage = null;//	new ImageIcon("Tank/P2/upS1.png").getImage();
+		//this.setImage = null;//	new ImageIcon("Unit/P2/upS1.png").getImage();
 	}
 
 	//setting the direction of the movement
 	public void move(){
 
-		if (this.getXPos() + Tank.WIDTH + this.getDX() > 600){
+		if (this.getXPos() + Unit.WIDTH + this.getDX() > 600){
 			this.setDirection(0,this.getDY());
 		}
-		if (this.getYPos() + Tank.HEIGHT + this.getDY() > 600){
+		if (this.getYPos() + Unit.HEIGHT + this.getDY() > 600){
 			this.setDirection(this.getDX(),0);
 		}
 		if (this.getYPos() + this.getDY() < 0){
@@ -133,7 +133,7 @@ public class Tank extends Sprite{
 			randY = rand.nextInt(570);
 			super.setCoor(randX,randY);
 
-			Rectangle thisBounds = new Rectangle(randX,randY,Tank.HEIGHT,Tank.WIDTH);
+			Rectangle thisBounds = new Rectangle(randX,randY,Unit.HEIGHT,Unit.WIDTH);
 			for (Sprite object : Paint.map.getBlocks()){
 				if (collisionCheck(object))
 					flag = true;
@@ -142,7 +142,7 @@ public class Tank extends Sprite{
 			if (flag)
 				continue;
 
-			for (Tank object : Paint.tanks){
+			for (Unit object : Paint.players){
 				if (this.player == object.getPlayer())
 					continue;
 				else if (collisionCheck(object))
@@ -170,18 +170,32 @@ public class Tank extends Sprite{
 
 	//animation
 	public void drawWeapon(Graphics g, JPanel paint){
+		int changingHands = this.animationState<5?1:-1;
+
 		switch (this.direction){
 			case 'w':
-				g.drawImage(this.weapon.getImage(),this.getXPos(), this.getYPos()-this.weapon.getHeight(), this.weapon.getWidth(), this.weapon.getHeight(), paint);
+				g.drawImage(this.weapon.getImage(),this.getXPos()+this.getWidth()-this.weapon.getWidth()/2,(5*changingHands)+this.getYPos()+(this.getHeight()/4)-(this.weapon.getHeight()) , this.weapon.getWidth(), this.weapon.getHeight(), paint);
+				//hands
+				g.fillOval(this.getXPos()+this.getWidth(),(5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);        	
+				g.fillOval(this.getXPos()-this.getWidth()/2,(-5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 			case 'a':
-				g.drawImage(this.weapon.getImage(),this.getXPos()-this.weapon.getHeight(), this.getYPos(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
+				g.drawImage(this.weapon.getImage(),(-5*changingHands)+this.getXPos()+this.getWidth()/4-this.weapon.getHeight(),this.getYPos()-this.weapon.getWidth()/2, this.weapon.getHeight(), this.weapon.getWidth(), paint);
+				//hands
+				g.fillOval((5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()+this.getHeight() ,this.getWidth()/2,this.getHeight()/2);        	
+				g.fillOval((-5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()-this.getHeight()/2 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 			case 's':
-				g.drawImage(this.weapon.getImage(),this.getXPos(), this.getYPos()+this.getHeight(), this.weapon.getWidth(), this.weapon.getHeight(), paint);
+				g.drawImage(this.weapon.getImage(),this.getXPos()-this.weapon.getWidth(),(-5*changingHands)+this.getYPos()+(this.getHeight()/2) , this.weapon.getWidth(), this.weapon.getHeight(), paint);
+				//hands
+				g.fillOval(this.getXPos()+this.getWidth(),(5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);        	
+				g.fillOval(this.getXPos()-this.getWidth()/2,(-5*changingHands)+this.getYPos()+this.getHeight()/4 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 			case 'd':
-				g.drawImage(this.weapon.getImage(),this.getXPos()+this.getWidth(), this.getYPos(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
+				g.drawImage(this.weapon.getImage(),(5*changingHands)+this.getXPos()+this.getWidth()/4+this.weapon.getWidth()/2,this.getYPos()+this.getHeight(), this.weapon.getHeight(), this.weapon.getWidth(), paint);
+				//hands
+				g.fillOval((5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()+this.getHeight() ,this.getWidth()/2,this.getHeight()/2);        	
+				g.fillOval((-5*changingHands)+this.getXPos()+this.getWidth()/4,this.getYPos()-this.getHeight()/2 ,this.getWidth()/2,this.getHeight()/2);
 			break;
 		}
 	}
@@ -190,28 +204,28 @@ public class Tank extends Sprite{
 		/*switch (this.direction){
 			case 'w':
 				if (this.animationState < 5)
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/upS1.png").getImage()):(new ImageIcon("Tank/P2/upS1.png").getImage()));
+            		//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/upS1.png").getImage()):(new ImageIcon("Unit/P2/upS1.png").getImage()));
             	else
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/upS2.png").getImage()):(new ImageIcon("Tank/P2/upS2.png").getImage()));
+            		//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/upS2.png").getImage()):(new ImageIcon("Unit/P2/upS2.png").getImage()));
 			break;
 			case 'a':
 	            if (this.animationState < 5)
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/leftS1.png").getImage()):(new ImageIcon("Tank/P2/leftS1.png").getImage()));
+            		//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/leftS1.png").getImage()):(new ImageIcon("Unit/P2/leftS1.png").getImage()));
             	else
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/leftS2.png").getImage()):(new ImageIcon("Tank/P2/leftS2.png").getImage()));
+            		//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/leftS2.png").getImage()):(new ImageIcon("Unit/P2/leftS2.png").getImage()));
 
 			break;
 			case 's':
 				if (this.animationState < 5)
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/downS1.png").getImage()):(new ImageIcon("Tank/P2/downS1.png").getImage()));
+            		//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/downS1.png").getImage()):(new ImageIcon("Unit/P2/downS1.png").getImage()));
             	else
-            		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/downS2.png").getImage()):(new ImageIcon("Tank/P2/downS2.png").getImage()));
+            		//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/downS2.png").getImage()):(new ImageIcon("Unit/P2/downS2.png").getImage()));
 			break;
 			case 'd':
 				 if (this.animationState < 5)
-	            	//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/rightS1.png").getImage()):(new ImageIcon("Tank/P2/rightS1.png").getImage()));
+	            	//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/rightS1.png").getImage()):(new ImageIcon("Unit/P2/rightS1.png").getImage()));
 	           	else
-	           		//this.setImage(this.player == CP1? (new ImageIcon("Tank/P1/rightS2.png").getImage()):(new ImageIcon("Tank/P2/rightS2.png").getImage()));
+	           		//this.setImage(this.player == CP1? (new ImageIcon("Unit/P1/rightS2.png").getImage()):(new ImageIcon("Unit/P2/rightS2.png").getImage()));
 			break;
 		}*/
 	}
@@ -288,12 +302,12 @@ public class Tank extends Sprite{
 
 	//Tries to all enemies
 	public void attack(){
-		for (Tank tank : Paint.getTanks()){
-			if (tank.getPlayer() == this.player)
+		for (Unit player : Paint.getUnits()){
+			if (player.getPlayer() == this.player)
 				continue;
-			if (this.slash(tank)){
-    			tank.addDamage(this.damage);
-    			if (tank.isDead()){
+			if (this.slash(player)){
+    			player.addDamage(this.damage);
+    			if (player.isDead()){
     				this.score += 1;
     				//Paint.send("PLAYER "+this.player+" SCORES "+1);
     			}
@@ -347,7 +361,7 @@ public class Tank extends Sprite{
 				for (int players = 0;players<Paint.playerCount;players++){
 					if (players == this.player)
 						continue;
-					else if(this.collisionCheck(Paint.tanks.get(players))){
+					else if(this.collisionCheck(Paint.players.get(players))){
 						flag = true;
 					}
 				}
