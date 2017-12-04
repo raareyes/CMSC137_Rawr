@@ -51,6 +51,7 @@ public class ClientReceiver implements Runnable{
 			String[] dataStream = data.split(" ");
 			if (data.startsWith("FINISH")){	//the game is done
 				Paint.gameState = Paint.RESULTS;
+				System.exit(0);
 				break;
 			}
 			else if (data.startsWith("KILL")){	//a player was killed

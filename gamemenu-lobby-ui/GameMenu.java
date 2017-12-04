@@ -22,6 +22,7 @@ public class GameMenu extends JPanel implements ActionListener {
   private static JPanel classSelectorContainer;
   public static JRadioButton ninjaSelector;
   public static JRadioButton samuraiSelector;
+  public static int type =15;
 
   // final values
   private static final int FRAME_HEIGHT = 800;
@@ -126,6 +127,22 @@ public class GameMenu extends JPanel implements ActionListener {
   }
 
   public void actionPerformed(ActionEvent e) {
+    if(e.getSource() instanceof JRadioButton){
+          JRadioButton radioButton = (JRadioButton) e.getSource();
+          if(radioButton.isSelected()){
+               if (radioButton.getText().equals("Ninja")){
+                GameMenu.type = 15;
+                GameMenu.samuraiSelector.setSelected(false);
+               }
+                else if (radioButton.getText().equals("Samurai")){
+                  GameMenu.type = 25;
+                  GameMenu.ninjaSelector.setSelected(false);
+                }
+          }
+          return;
+      }
+
+
     System.out.println(e.getActionCommand());
     super.invalidate();
     super.setVisible(false);
@@ -158,7 +175,7 @@ public class GameMenu extends JPanel implements ActionListener {
       tcp.start();
 
     }else if(e.getActionCommand() == "Join a Lobby") {
-      String[] args = {ip.getText(),playerName.getText(),(Integer.parseInt(port.getText())+1)+"", 15+""};
+      String[] args = {ip.getText(),playerName.getText(),(Integer.parseInt(port.getText())+1)+"", GameMenu.type+""};
       JFrame frame = new JFrame("Shinobi & Bushido");;
       frame.setSize(600,600);
       //when we add this option to true (resizable), 
