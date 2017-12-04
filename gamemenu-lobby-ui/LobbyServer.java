@@ -23,16 +23,17 @@ public class LobbyServer extends JPanel implements ActionListener {
   //insert instance of chat with ui chat here
 
   /* final values */
-
+  UDPServer server;
   public static void main(String[] args) {
     //call the constructor to initialize class
 
   }
 
   // public LobbyServer(int string) {
-  public LobbyServer(String mode, String playerName, String ip, String port, boolean host){
+  public LobbyServer(String mode, String playerName, String ip, String port, boolean host, UDPServer server, Paint game){
     //initializations
     // LobbyServer.playerName = playerName;
+    this.server = server;
     super.setLayout(null);
     classSelectorContainer = new JPanel();
     gameSettings = new JPanel();
@@ -129,6 +130,10 @@ public class LobbyServer extends JPanel implements ActionListener {
     super.add(this.playerName);
     super.add(connections);
 
+    if (!host){
+      game.connect();
+    }
+
   }
 
   public JPanel getPanel() {
@@ -138,9 +143,9 @@ public class LobbyServer extends JPanel implements ActionListener {
   //TODO: intanstiate game here
   public void actionPerformed(ActionEvent e) {
     System.out.println(e.getActionCommand());
-    if(e.getActionCommand() == "Connect") {
-      //insert code to 
-      // System.out.println(this.getConnectionDetails()[0]);
+    if(e.getActionCommand() == "Start Game!") {
+      //server.setLives((Integer)LobbyServer.lives.getSelectedItem());
+      UDPServer.isStarting = true;
     }
   }
 
