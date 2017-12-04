@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.net.*;
 
 public class GameMenu extends JPanel implements ActionListener {
   /* Declarations */
@@ -16,6 +17,7 @@ public class GameMenu extends JPanel implements ActionListener {
   private static JTextField playerName;
   private static JTextField ip;
   private static JTextField port;
+  private static Runnable runnable;
 
   // final values
   private static final int FRAME_HEIGHT = 800;
@@ -97,7 +99,6 @@ public class GameMenu extends JPanel implements ActionListener {
 
     //add the JPanel into the JFrame
     gameWindow.getContentPane().add(this);
-    System.out.println(gameWindow);
   }
 
   public void actionPerformed(ActionEvent e) {
@@ -114,6 +115,23 @@ public class GameMenu extends JPanel implements ActionListener {
       classSelector.add(serverMenu.ninjaSelector);
       classSelector.add(serverMenu.samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
+
+      int tcpPort = Integer.parseInt(port.getText());
+      Server chatServer = new Server(tcpPort);
+
+      runnable = new Runnable(){
+      
+        @Override
+        public void run() {
+          try {
+            chatServer.run();
+          } catch(Exception event) {}
+        }
+      };
+
+      Thread tcp = new Thread(runnable);
+      tcp.start();
+
     }else if(e.getActionCommand() == "Join a Lobby") {
       LobbyServer serverMenu = new LobbyServer(e.getActionCommand(), 
         playerName.getText(), ip.getText(), port.getText());

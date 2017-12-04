@@ -1,20 +1,19 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Server {
 
-	private int port;
+	private static int port;
 	private List<PrintStream> clients;
 	private ServerSocket server;
 
 	public static void main(String[] args) throws IOException {
-		new Server(12345).run();
+		new Server(Server.port).run();
 	}
 
 	public Server(int port) {
@@ -28,7 +27,7 @@ public class Server {
 				this.close();
 			}
 		};
-		System.out.println("Port 12345 is now open.");
+		System.out.println("Port " + this.port + " is now open");
 
 		while (true) {
 			// accepts a new client
