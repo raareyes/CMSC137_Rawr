@@ -11,7 +11,6 @@ public class LobbyServer extends JPanel implements ActionListener {
   // public static JRadioButton ninjaSelector;
   // public static JRadioButton samuraiSelector;
   private static JComboBox<String> lives;
-  private static JComboBox<String> wins;
   // private static JPanel classSelectorContainer;
   private static JPanel gameSettings;
   private static JPanel chatContainer;
@@ -19,6 +18,9 @@ public class LobbyServer extends JPanel implements ActionListener {
   private JTextField port;
   private JTextField nickName;
   private static Connections connections;
+
+   String[] data = {};
+   JList<String> myList = new JList<String>(data);
 
   //insert instance of chat with ui chat here
 
@@ -56,8 +58,8 @@ public class LobbyServer extends JPanel implements ActionListener {
       // .createTitledBorder(BorderFactory.createEtchedBorder(), "Select Class"));
     //game settings
     if (host){
-      lives = new JComboBox<String> (new String[] { "3", "4", "5" });
-    wins = new JComboBox<String>(new String[] {"3", "4", "5"});
+      lives = new JComboBox<String> (new String[] {"1","2" ,"3", "4", "5", "6", "7" , "8" , "9" , "10" });
+    
       gameSettings.setBorder(BorderFactory
         .createTitledBorder(BorderFactory.createEtchedBorder(), "Game Settings"));
     }
@@ -71,10 +73,10 @@ public class LobbyServer extends JPanel implements ActionListener {
     if (host){
       lives.setActionCommand("lives setting");
       lives.setEditable(true);
-      wins.setActionCommand("wins setting");
-      wins.setEditable(true);
+      
+      
       lives.setPreferredSize(new Dimension(100, 20));
-      wins.setPreferredSize(new Dimension(100, 20));
+      
       startGame.setBounds(470, 660, 200, 40);
     }
     this.ip.setBounds(40, 100, 150, 30);
@@ -105,7 +107,6 @@ public class LobbyServer extends JPanel implements ActionListener {
     // classSelectorContainer.add(samuraiSelector);
     if (host){
       gameSettings.add(lives);
-      gameSettings.add(wins);
     }
 
     //add action listeners
@@ -113,7 +114,7 @@ public class LobbyServer extends JPanel implements ActionListener {
     // samuraiSelector.addActionListener(this);
     if (host){
       lives.addActionListener(this);
-      wins.addActionListener(this);
+      
       startGame.addActionListener(this);
     }
 
