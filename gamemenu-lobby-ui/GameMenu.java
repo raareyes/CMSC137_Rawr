@@ -18,6 +18,7 @@ public class GameMenu extends JPanel implements ActionListener {
   private static JTextField ip;
   private static JTextField port;
   private static Runnable runnable;
+  private static Runnable runnable2;
 
   // final values
   private static final int FRAME_HEIGHT = 800;
@@ -130,7 +131,6 @@ public class GameMenu extends JPanel implements ActionListener {
         }
       };
 
-
       Thread tcp = new Thread(runnable);
       tcp.start();
 
@@ -148,6 +148,23 @@ public class GameMenu extends JPanel implements ActionListener {
       classSelector.add(serverMenu.ninjaSelector);
       classSelector.add(serverMenu.samuraiSelector);
       gameWindow.getContentPane().add(serverMenu);
+
+      int tcpPort = Integer.parseInt(port.getText());
+      Client chatClient = new Client(ip.getText(), tcpPort, playerName.getText());
+      runnable2 = new Runnable() {
+
+        @Override
+        public void run() {
+          try {
+            chatClient.run();
+          } catch(Exception event) {
+            System.out.println(event);
+          }
+        }
+      };
+
+      Thread tcpClientThread = new Thread(runnable2);
+      tcpClientThread.start();
     }
   }
 
