@@ -30,7 +30,7 @@ public class LobbyServer extends JPanel implements ActionListener {
   }
 
   // public LobbyServer(int string) {
-  public LobbyServer(String mode, String playerName, String ip, String port){
+  public LobbyServer(String mode, String playerName, String ip, String port, boolean host){
     //initializations
     // LobbyServer.playerName = playerName;
     super.setLayout(null);
@@ -54,10 +54,12 @@ public class LobbyServer extends JPanel implements ActionListener {
     classSelectorContainer.setBorder(BorderFactory
       .createTitledBorder(BorderFactory.createEtchedBorder(), "Select Class"));
     //game settings
-    lives = new JComboBox<String> (new String[] { "3", "4", "5" });
+    if (host){
+      lives = new JComboBox<String> (new String[] { "3", "4", "5" });
     wins = new JComboBox<String>(new String[] {"3", "4", "5"});
-    gameSettings.setBorder(BorderFactory
-      .createTitledBorder(BorderFactory.createEtchedBorder(), "Game Settings"));
+      gameSettings.setBorder(BorderFactory
+        .createTitledBorder(BorderFactory.createEtchedBorder(), "Game Settings"));
+    }
 
 
     //set component properties 
@@ -65,13 +67,15 @@ public class LobbyServer extends JPanel implements ActionListener {
     samuraiSelector.setActionCommand("Samurai");
     ninjaSelector.setPreferredSize(new Dimension(100, 20));
     samuraiSelector.setPreferredSize(new Dimension(100, 20));
-    lives.setActionCommand("lives setting");
-    lives.setEditable(true);
-    wins.setActionCommand("wins setting");
-    wins.setEditable(true);
-    lives.setPreferredSize(new Dimension(100, 20));
-    wins.setPreferredSize(new Dimension(100, 20));
-    startGame.setBounds(470, 660, 200, 40);
+    if (host){
+      lives.setActionCommand("lives setting");
+      lives.setEditable(true);
+      wins.setActionCommand("wins setting");
+      wins.setEditable(true);
+      lives.setPreferredSize(new Dimension(100, 20));
+      wins.setPreferredSize(new Dimension(100, 20));
+      startGame.setBounds(470, 660, 200, 40);
+    }
     this.ip.setBounds(40, 100, 150, 30);
     this.ip.setEditable(false);
     this.port.setBounds(220, 100, 150, 30);
@@ -98,15 +102,19 @@ public class LobbyServer extends JPanel implements ActionListener {
     //place components
     classSelectorContainer.add(ninjaSelector);
     classSelectorContainer.add(samuraiSelector);
-    gameSettings.add(lives);
-    gameSettings.add(wins);
+    if (host){
+      gameSettings.add(lives);
+      gameSettings.add(wins);
+    }
 
     //add action listeners
     ninjaSelector.addActionListener(this);
     samuraiSelector.addActionListener(this);
-    lives.addActionListener(this);
-    wins.addActionListener(this);
-    startGame.addActionListener(this);
+    if (host){
+      lives.addActionListener(this);
+      wins.addActionListener(this);
+      startGame.addActionListener(this);
+    }
 
     // add to cosntainers
     super.add(classSelectorContainer);
