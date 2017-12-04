@@ -47,7 +47,7 @@ public class GameMenu extends JPanel implements ActionListener {
     gameWindow.setResizable(false);
     gameWindow.setFocusable(true);
     gameWindow.setIconImage(
-      (new ImageIcon("../BattleCity Demo/Tank/Tank.png")).getImage());
+      (new ImageIcon("Weapons/Sword/WeaponDown.png")).getImage());
     this.setBackground(Color.BLACK);
     gameWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     // gameWindow.pack();
@@ -62,7 +62,7 @@ public class GameMenu extends JPanel implements ActionListener {
     ip = new JTextField("127.0.0.1");
     port = new JTextField("3000");
     createLobby = new JButton("Create a Lobby");
-    joinLobby = new JButton("Join a Lobby");
+    joinLobby = new JButton("Join Game");
     help = new JButton("Help");
     gameName = new JLabel("Shinobi & Bushido");
     playerNameLabel = new JLabel("Enter Player Name: ");
@@ -174,7 +174,7 @@ public class GameMenu extends JPanel implements ActionListener {
       Thread tcp = new Thread(runnable);
       tcp.start();
 
-    }else if(e.getActionCommand() == "Join a Lobby") {
+    }else if(e.getActionCommand() == "Join Game") {
       String[] args = {ip.getText(),playerName.getText(),(Integer.parseInt(port.getText())+1)+"", GameMenu.type+""};
       JFrame frame = new JFrame("Shinobi & Bushido");;
       frame.setSize(600,600);
@@ -187,7 +187,7 @@ public class GameMenu extends JPanel implements ActionListener {
         playerName.getText(), ip.getText(), port.getText(),false,null,new Paint(args[0],args[1],Integer.parseInt(args[2]),Integer.parseInt(args[3]),frame));
       classSelector.add(ninjaSelector);
       classSelector.add(samuraiSelector);
-      gameWindow.getContentPane().add(serverMenu);
+      //gameWindow.getContentPane().add(serverMenu);
 
       int tcpPort = Integer.parseInt(port.getText());
       Client chatClient = new Client(ip.getText(), tcpPort, playerName.getText());

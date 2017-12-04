@@ -254,11 +254,12 @@ public class Paint extends JPanel implements Runnable, KeyListener {
 
 		for(Unit player: Paint.players) {
 				
-			//Range
 			if (!player.isAlive()|| (!player.isVisible() && player.getPlayer() != this.id))
 				continue;
-			g.setColor(Color.WHITE);
-			g.drawOval(player.getXPos()-player.getRange(),player.getYPos()-player.getRange(),player.getRange()*2+player.getWidth(),player.getRange()*2+player.getHeight());
+			
+			//Range indecator
+			//g.setColor(Color.WHITE);
+			//g.drawOval(player.getXPos()-player.getRange(),player.getYPos()-player.getRange(),player.getRange()*2+player.getWidth(),player.getRange()*2+player.getHeight());
 			g.setColor(player.getColor());
 
 			// HashMap<String,Integer> weap = player.getWeaponPos();
