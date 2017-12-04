@@ -5,9 +5,9 @@ import java.awt.event.*;
 public class LobbyServer extends JPanel implements ActionListener {
   /* Declarations */
   private static JButton startGame;
-  private static JButton connect;
   private static JLabel ipField;
   private static JLabel portField;
+  private JLabel playerName;
   public static JRadioButton ninjaSelector;
   public static JRadioButton samuraiSelector;
   private static JComboBox<String> lives;
@@ -15,8 +15,9 @@ public class LobbyServer extends JPanel implements ActionListener {
   private static JPanel classSelectorContainer;
   private static JPanel gameSettings;
   private static JPanel chatContainer;
-  private static JTextField ip;
-  private static JTextField port;
+  private JTextField ip;
+  private JTextField port;
+  private JTextField nickName;
   private static Connections connections;
 
   //insert instance of chat with ui chat here
@@ -25,25 +26,24 @@ public class LobbyServer extends JPanel implements ActionListener {
 
   public static void main(String[] args) {
     //call the constructor to initialize class
+
   }
 
   // public LobbyServer(int string) {
-  public LobbyServer(String mode){
+  public LobbyServer(String mode, String playerName, String ip, String port){
     //initializations
+    // LobbyServer.playerName = playerName;
     super.setLayout(null);
     classSelectorContainer = new JPanel();
     gameSettings = new JPanel();
     chatContainer = new JPanel();
     startGame = new JButton("Start Game!");
-    connect = new JButton("Connect");
-    if(mode == "Create a Lobby"){
-      ip = new JTextField("127.0.0.1");
-    } else {
-      ip = new JTextField();
-    }
-    port = new JTextField();
-    ipField = new JLabel("Enter IP");
-    portField = new JLabel("Enter Port");
+    this.ip = new JTextField(ip);
+    this.port = new JTextField(port);
+    this.nickName = new JTextField(playerName);
+    ipField = new JLabel("User IP");
+    portField = new JLabel("User Port");
+    this.playerName = new JLabel("Player Name: ");
     connections = new Connections();
 
     /* instantiate components */
@@ -72,13 +72,18 @@ public class LobbyServer extends JPanel implements ActionListener {
     lives.setPreferredSize(new Dimension(100, 20));
     wins.setPreferredSize(new Dimension(100, 20));
     startGame.setBounds(470, 660, 200, 40);
-    ip.setBounds(40, 100, 150, 30);
-    port.setBounds(220, 100, 150, 30);
+    this.ip.setBounds(40, 100, 150, 30);
+    this.ip.setEditable(false);
+    this.port.setBounds(220, 100, 150, 30);
+    this.port.setEditable(false);
+    this.nickName.setBounds(140, 135, 150, 30);
+    this.nickName.setEditable(false);
     ipField.setLocation(90, 70);
     ipField.setSize(60, 30);
     portField.setLocation(260, 70);
     portField.setSize(90, 30);
-    connect.setBounds(130, 140, 150, 30);
+    this.playerName.setLocation(40, 135);
+    this.playerName.setSize(150, 30);
     connections.setBounds(40, 200, 350, 350);
 
     //customize JPanels
@@ -108,11 +113,12 @@ public class LobbyServer extends JPanel implements ActionListener {
     super.add(gameSettings);
     super.add(chatContainer);
     super.add(startGame);
-    super.add(ip);
-    super.add(port);
+    super.add(this.ip);
+    super.add(this.port);
+    super.add(this.nickName);
     super.add(ipField);
     super.add(portField);
-    super.add(connect);
+    super.add(this.playerName);
     super.add(connections);
 
   }
@@ -121,12 +127,25 @@ public class LobbyServer extends JPanel implements ActionListener {
     return this;
   }
 
+  //TODO: intanstiate game here
   public void actionPerformed(ActionEvent e) {
     System.out.println(e.getActionCommand());
+    if(e.getActionCommand() == "Connect") {
+      //insert code to 
+      // System.out.println(this.getConnectionDetails()[0]);
+    }
   }
 
   protected void paintComponent(Graphics g) {
     super.paintComponent(g);
+  }
+
+  public String[] getConnectionDetails(){
+    String[] connection = new String[2];
+    connection[0] = ip.getText();
+    connection[1] = ip.getText();
+
+    return connection;
   }
 }
 
